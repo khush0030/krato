@@ -34,7 +34,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     }
     // Bullet list
     else if (line.startsWith('- ') || line.startsWith('* ')) {
-      const listItems: JSX.Element[] = [];
+      const listItems: ReactElement[] = [];
       while (i < lines.length && (lines[i].startsWith('- ') || lines[i].startsWith('* '))) {
         listItems.push(
           <li key={i} style={{ color: '#d4d4d8', fontSize: 14, lineHeight: 1.6, marginBottom: 3 }}>
@@ -48,7 +48,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     }
     // Numbered list
     else if (/^\d+\.\s/.test(line)) {
-      const listItems: JSX.Element[] = [];
+      const listItems: ReactElement[] = [];
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
         listItems.push(
           <li key={i} style={{ color: '#d4d4d8', fontSize: 14, lineHeight: 1.6, marginBottom: 3 }}>
