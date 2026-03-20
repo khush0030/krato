@@ -126,9 +126,10 @@ export async function POST(req: NextRequest) {
   }
 
   // Update ad count
-  await db.from('competitor_brands').update({ ad_count: adsToUpsert.length, last_scraped_at: new Date().toISOString() }).eq('id', competitor_id).catch(() => {});
-  await db.from('competitors').update({ last_scraped_at: new Date().toISOString() }).eq('id', competitor_id).catch(() => {});
+  await db.from('competitor_brands').update({ ad_count: adsToUpsert.length, last_scraped_at: new Date().toISOString() }).eq('id', competitor_id);
+  await db.from('competitors').update({ last_scraped_at: new Date().toISOString() }).eq('id', competitor_id);
 
   return NextResponse.json({ success: true, adsFound: adsToUpsert.length });
 }
+
 

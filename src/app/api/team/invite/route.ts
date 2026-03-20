@@ -3,7 +3,9 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+}
 const MAX_FREE_MEMBERS = 2;
 
 function getUserClient(authHeader: string) {
@@ -67,7 +69,7 @@ export async function POST(req: NextRequest) {
     // Try sending email via Resend
     let emailSent = false;
     try {
-      const { error: emailError } = await resend.emails.send({
+      const { error: emailError } = await getResend().emails.send({
         from: 'Lumnix <onboarding@resend.dev>',
         to: email,
         subject: `${inviterName} invited you to join ${workspace.name} on Lumnix`,
@@ -145,3 +147,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
