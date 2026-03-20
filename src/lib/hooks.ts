@@ -61,9 +61,13 @@ export function useIntegrations(workspaceId: string | undefined) {
 // Connect an integration
 export async function connectIntegration(provider: string, workspaceId: string) {
   try {
+    const { data: { session } } = await supabase.auth.getSession();
     const res = await fetch("/api/integrations/connect", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
       body: JSON.stringify({ provider, workspace_id: workspaceId }),
     });
     const data = await res.json();
