@@ -127,12 +127,25 @@ export default function AIPage() {
   const { workspace } = useWorkspace();
   const { integrations } = useIntegrations(workspace?.id);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved = localStorage.getItem('lumnix-chat-history');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [loading, setLoading] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Persist messages to localStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      try { localStorage.setItem('lumnix-chat-history', JSON.stringify(messages.slice(-50))); } catch {}
+    }
+  }, [messages]);
 
   const connectedSources = integrations.filter(i => i.status === 'connected').map(i => i.provider);
   const hasData = connectedSources.length > 0;
@@ -298,7 +311,7 @@ export default function AIPage() {
           {messages.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
               <button
-                onClick={() => setMessages([])}
+                onClick={() => { setMessages([]); try { localStorage.removeItem('lumnix-chat-history'); } catch {} }}
                 style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 6, border: '1px solid #27272a', backgroundColor: 'transparent', color: '#52525b', fontSize: 12, cursor: 'pointer' }}
               >
                 <Trash2 size={11} /> Clear chat
