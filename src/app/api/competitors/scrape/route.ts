@@ -49,15 +49,15 @@ async function scrapeViaMetaAPI(searchTerms: string, appId: string, appSecret: s
 }
 
 async function scrapeViaApify(searchTerms: string, apifyToken: string) {
-  // Use Apify's Facebook Ad Library scraper as fallback
   try {
-    const runRes = await fetch('https://api.apify.com/v2/acts/apify~facebook-ads-scraper/runs', {
+    const runRes = await fetch('https://api.apify.com/v2/acts/apify~facebook-ads-library-scraper/runs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apifyToken}` },
       body: JSON.stringify({
-        searchTerms: [searchTerms],
-        maxAds: 30,
+        searchTerms: searchTerms,
+        adType: 'ALL',
         country: 'US',
+        maxResults: 30,
       }),
     });
     const runData = await runRes.json();

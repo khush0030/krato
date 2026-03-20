@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Search, BarChart3, Target, Share2, Check, X, Plug, User, Bell, Shield, CreditCard, RefreshCw, Loader2, Palette, Upload } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { Search, BarChart3, Target, Share2, Check, X, Plug, User, Bell, Shield, CreditCard, RefreshCw, Loader2, Palette, Upload, Users, Mail, Crown } from "lucide-react";
 import { useWorkspace, useIntegrations, connectIntegration, syncIntegration } from "@/lib/hooks";
 import { supabase } from "@/lib/supabase";
 
@@ -215,6 +216,7 @@ const providers = [
 
 const tabs = [
   { id: "integrations", label: "Integrations", icon: Plug },
+  { id: "team", label: "Team", icon: Users },
   { id: "brand", label: "Brand", icon: Palette },
   { id: "profile", label: "Profile", icon: User },
   { id: "notifications", label: "Notifications", icon: Bell },
@@ -227,6 +229,41 @@ export default function SettingsPage() {
   const { workspace, loading: wsLoading } = useWorkspace();
   const { integrations, loading: intLoading, refetch } = useIntegrations(workspace?.id);
   const [syncing, setSyncing] = useState<string | null>(null);
+
+  // Team invite state
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
+  const [inviteMsg, setInviteMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [teamData, setTeamData] = useState<{ invites: any[]; canInviteMore: boolean; slotsUsed: number; maxSlots: number } | null>(null);
+
+  useEffect(() => {
+    if (workspace?.id && activeTab === "team") {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (!session) return;
+        fetch(`/api/team/invite?workspace_id=${workspace.id}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        }).then(r => r.json()).then(setTeamData).catch(() => {});
+      });
+    }
+  }, [workspace?.id, activeTab]);
+
+  async function handleInvite(e: React.FormEvent) {
+    e.preventDefault();
+    if (!inviteEmail || !workspace?.id) return;
+    setInviting(true);
+    setInviteMsg(null);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch('/api/team/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ email: inviteEmail, workspace_id: workspace.id }),
+    });
+    const data = await res.json();
+    setInviteMsg({ text: data.success ? `Invite sent to ${inviteEmail}` : data.error, ok: !!data.success });
+    if (data.success) { setInviteEmail(""); setTeamData(prev => prev ? { ...prev, slotsUsed: prev.slotsUsed + 1, canInviteMore: prev.slotsUsed + 1 < prev.maxSlots, invites: [...prev.invites, { email: inviteEmail, status: 'pending', created_at: new Date().toISOString() }] } : prev); }
+    setInviting(false);
+  }
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -380,6 +417,89 @@ export default function SettingsPage() {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {activeTab === "team" && (
+        <div style={{ maxWidth: 560 }}>
+          {/* Slots indicator */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderRadius: 12, backgroundColor: "#18181b", border: "1px solid #27272a", marginBottom: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Crown size={16} color="#f59e0b" />
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#f4f4f5" }}>Free Plan</div>
+                <div style={{ fontSize: 12, color: "#71717a" }}>Up to {teamData?.maxSlots || 2} additional team members</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#f4f4f5", fontFamily: "var(--font-display)" }}>
+              {teamData?.slotsUsed || 0} / {teamData?.maxSlots || 2}
+              <span style={{ fontSize: 12, color: "#71717a", fontFamily: "var(--font-body)", fontWeight: 400, marginLeft: 4 }}>used</span>
+            </div>
+          </div>
+
+          {/* Invite form */}
+          <div style={{ padding: "20px 24px", borderRadius: 12, backgroundColor: "#18181b", border: "1px solid #27272a", marginBottom: 20 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: "#f4f4f5", marginBottom: 4 }}>Invite a team member</h3>
+            <p style={{ fontSize: 13, color: "#71717a", marginBottom: 16 }}>They'll receive an email with a link to sign up and join your workspace.</p>
+            <form onSubmit={handleInvite} style={{ display: "flex", gap: 10 }}>
+              <div style={{ position: "relative", flex: 1 }}>
+                <Mail size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#475569" }} />
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={e => setInviteEmail(e.target.value)}
+                  placeholder="colleague@company.com"
+                  required
+                  disabled={teamData?.canInviteMore === false}
+                  style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 8, border: "1px solid #334155", backgroundColor: "#0f172a", color: "#f8fafc", fontSize: 14, outline: "none", boxSizing: "border-box", opacity: teamData?.canInviteMore === false ? 0.5 : 1 }}
+                  onFocus={e => (e.target as HTMLInputElement).style.borderColor = "#7c3aed"}
+                  onBlur={e => (e.target as HTMLInputElement).style.borderColor = "#334155"}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={inviting || !inviteEmail || teamData?.canInviteMore === false}
+                style={{ padding: "10px 18px", borderRadius: 8, border: "none", backgroundColor: "#7c3aed", color: "white", fontSize: 14, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, opacity: (inviting || !inviteEmail || teamData?.canInviteMore === false) ? 0.6 : 1, whiteSpace: "nowrap" }}
+              >
+                {inviting ? <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} /> : <Mail size={14} />}
+                {inviting ? "Sending..." : "Send Invite"}
+              </button>
+            </form>
+            {teamData?.canInviteMore === false && (
+              <p style={{ fontSize: 12, color: "#f59e0b", marginTop: 10 }}>⚠️ Member limit reached. Upgrade to add more.</p>
+            )}
+            {inviteMsg && (
+              <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 8, backgroundColor: inviteMsg.ok ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${inviteMsg.ok ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`, color: inviteMsg.ok ? "#22c55e" : "#f87171", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                {inviteMsg.ok ? <Check size={13} /> : <X size={13} />}
+                {inviteMsg.text}
+              </div>
+            )}
+          </div>
+
+          {/* Pending invites */}
+          {teamData?.invites && teamData.invites.length > 0 && (
+            <div style={{ padding: "20px 24px", borderRadius: 12, backgroundColor: "#18181b", border: "1px solid #27272a" }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: "#f4f4f5", marginBottom: 16 }}>Pending Invites</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {teamData.invites.map((inv: any) => (
+                  <div key={inv.id || inv.email} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 8, backgroundColor: "#0f172a", border: "1px solid #1e293b" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#7c3aed" }}>
+                        {inv.email[0].toUpperCase()}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, color: "#f4f4f5" }}>{inv.email}</div>
+                        <div style={{ fontSize: 11, color: "#52525b" }}>Invited {new Date(inv.created_at).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 6, backgroundColor: inv.status === "accepted" ? "rgba(34,197,94,0.1)" : "rgba(245,158,11,0.1)", color: inv.status === "accepted" ? "#22c55e" : "#f59e0b" }}>
+                      {inv.status === "accepted" ? "Joined" : "Pending"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
