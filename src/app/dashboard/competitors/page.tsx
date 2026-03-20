@@ -168,12 +168,13 @@ export default function CompetitorsPage() {
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '12px', color: '#71717a', marginBottom: '6px' }}>Facebook Page Name</label>
+              <label style={{ display: 'block', fontSize: '12px', color: '#71717a', marginBottom: '6px' }}>Search Term * <span style={{ color: '#52525b' }}>(brand name or keyword)</span></label>
               <input
                 value={formPage}
                 onChange={e => setFormPage(e.target.value)}
                 placeholder="e.g. Nike"
-                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #27272a', backgroundColor: '#09090b', color: '#f4f4f5', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                required
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #7c3aed', backgroundColor: '#09090b', color: '#f4f4f5', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
             <div>
