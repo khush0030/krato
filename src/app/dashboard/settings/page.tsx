@@ -241,7 +241,10 @@ export default function SettingsPage() {
         if (!session) return;
         fetch(`/api/team/invite?workspace_id=${workspace.id}`, {
           headers: { Authorization: `Bearer ${session.access_token}` }
-        }).then(r => r.json()).then(setTeamData).catch(() => {});
+        }).then(r => r.json()).then(d => {
+          if (d.error) setTeamData({ invites: [], canInviteMore: true, slotsUsed: 0, maxSlots: 2 });
+          else setTeamData(d);
+        }).catch(() => setTeamData({ invites: [], canInviteMore: true, slotsUsed: 0, maxSlots: 2 }));
       });
     }
   }, [workspace?.id, activeTab]);

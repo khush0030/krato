@@ -62,11 +62,12 @@ export function useIntegrations(workspaceId: string | undefined) {
 export async function connectIntegration(provider: string, workspaceId: string) {
   try {
     const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { alert('Please sign in first'); return; }
     const res = await fetch("/api/integrations/connect", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        Authorization: `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({ provider, workspace_id: workspaceId }),
     });
