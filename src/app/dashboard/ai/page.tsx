@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ReactElement } from 'react';
 import { Brain, Send, BarChart3, TrendingUp, Zap, Search, Target, Copy, Check, Trash2, Database, Wifi, WifiOff } from 'lucide-react';
 import { PageShell } from '@/components/PageShell';
 import { useWorkspace, useIntegrations } from '@/lib/hooks';
@@ -18,7 +18,7 @@ type Message = { role: 'user' | 'assistant'; content: string; timestamp?: Date }
 // Parse markdown into JSX
 function MarkdownRenderer({ content }: { content: string }) {
   const lines = content.split('\n');
-  const elements: JSX.Element[] = [];
+  const elements: ReactElement[] = [];
   let i = 0;
 
   while (i < lines.length) {
