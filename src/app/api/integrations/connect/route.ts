@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       const params = new URLSearchParams({
         client_id: process.env.META_APP_ID || '',
         redirect_uri: redirectUri,
-        scope: 'ads_read,ads_management,read_insights',
+        scope: 'ads_read,ads_management',
         response_type: 'code',
         state: Buffer.from(state).toString('base64'),
       });
