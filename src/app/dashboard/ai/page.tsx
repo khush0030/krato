@@ -131,7 +131,12 @@ export default function AIPage() {
     if (typeof window === 'undefined') return [];
     try {
       const saved = localStorage.getItem('lumnix-chat-history');
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      // Rehydrate timestamp strings back to Date objects
+      return JSON.parse(saved).map((m: Message) => ({
+        ...m,
+        timestamp: m.timestamp ? new Date(m.timestamp) : undefined,
+      }));
     } catch { return []; }
   });
   const [loading, setLoading] = useState(false);
