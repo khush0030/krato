@@ -13,26 +13,22 @@ function StatCard({ label, value, sub, color, icon: Icon, loading, platformLogo 
   label: string; value: string; sub?: string; color: string; icon: any; loading?: boolean; platformLogo?: string;
 }) {
   return (
-    <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: `${color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon size={19} color={color} />
+    <div style={{ backgroundColor: '#FFFFFF', borderRadius: 14, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: `${color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={16} color={color} />
         </div>
-        {platformLogo && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <PlatformLogo name={platformLogo} size={16} />
-          </div>
-        )}
+        {platformLogo && <PlatformLogo name={platformLogo} size={15} />}
       </div>
       {loading ? (
-        <div style={{ height: 32, backgroundColor: '#F1F5F9', borderRadius: 6, marginBottom: 8, width: '60%' }} />
+        <div style={{ height: 36, backgroundColor: '#f3f4f6', borderRadius: 6, marginBottom: 8, width: '55%', animation: 'pulse 1.5s ease-in-out infinite' }} />
       ) : (
-        <div style={{ fontSize: 30, fontWeight: 700, color: '#0F172A', fontFamily: 'var(--font-display)', letterSpacing: '-0.5px', marginBottom: 4 }}>
+        <div style={{ fontSize: 32, fontWeight: 600, color: '#111827', letterSpacing: '-0.03em', marginBottom: 4, lineHeight: 1.1 }}>
           {value}
         </div>
       )}
-      <div style={{ fontSize: 12, color: '#64748B', fontWeight: 500 }}>{label}</div>
-      {sub && <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 3 }}>{sub}</div>}
+      <div style={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</div>
+      {sub && <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 3 }}>{sub}</div>}
     </div>
   );
 }
@@ -73,11 +69,11 @@ export default function DashboardPage() {
     <div style={{ fontFamily: 'var(--font-body)' }}>
 
       {/* Welcome */}
-      <div style={{ marginBottom: 24 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 600, color: '#0F172A', fontFamily: 'var(--font-display)' }}>
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, color: '#1a1a1a', letterSpacing: '-0.02em', lineHeight: 1.3 }}>
           Welcome back{workspace?.name ? `, ${workspace.name.split(' ')[0]}` : ''} 👋
-        </h2>
-        <p style={{ color: '#64748B', fontSize: 13, marginTop: 3 }}>
+        </h1>
+        <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4, lineHeight: 1.6 }}>
           {connectedProviders.length > 0
             ? `${connectedProviders.length} data source${connectedProviders.length > 1 ? 's' : ''} connected · Last 30 days`
             : 'Connect your first integration to see live data'}
@@ -95,12 +91,12 @@ export default function DashboardPage() {
       {/* Charts row */}
       <div className="two-col" style={{ marginBottom: 24 }}>
         {/* Clicks chart */}
-        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 22, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <PlatformLogo name="googlesearchconsole" size={16} />
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: 14, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
+            <PlatformLogo name="googlesearchconsole" size={15} />
             <div>
-              <h3 style={{ fontSize: 15, fontWeight: 600, color: '#0F172A' }}>Organic Traffic</h3>
-              <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 1 }}>Daily clicks — last 14 days</p>
+              <p style={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Organic Traffic</p>
+              <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 1 }}>Daily clicks — last 14 days</p>
             </div>
           </div>
           {chartData.length > 0 ? (
@@ -129,13 +125,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Top keywords */}
-        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 22, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: 14, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <PlatformLogo name="googlesearchconsole" size={16} />
+              <PlatformLogo name="googlesearchconsole" size={15} />
               <div>
-                <h3 style={{ fontSize: 15, fontWeight: 600, color: '#0F172A' }}>Top Keywords</h3>
-                <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 1 }}>By organic clicks</p>
+                <p style={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Top Keywords</p>
+                <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 1 }}>By organic clicks</p>
               </div>
             </div>
             {hasGSC && (
@@ -169,7 +165,7 @@ export default function DashboardPage() {
 
       {/* Connect CTA */}
       {connectedProviders.length === 0 && !loading && (
-        <div style={{ padding: 20, borderRadius: 12, background: '#F5F3FF', border: '1px solid #DDD6FE', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 24 }}>
+        <div style={{ padding: 20, borderRadius: 14, background: '#F5F3FF', boxShadow: '0 0 0 1px rgba(124,58,237,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 24 }}>
           <div>
             <h3 style={{ fontSize: 15, fontWeight: 600, color: '#0F172A', marginBottom: 3 }}>Connect your first data source</h3>
             <p style={{ fontSize: 13, color: '#64748B' }}>Link GSC, GA4, Google Ads, or Meta Ads to populate your dashboard with real data.</p>
@@ -182,7 +178,7 @@ export default function DashboardPage() {
 
       {/* Quick wins */}
       {quickWins.length > 0 && (
-        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 22, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: 14, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <Brain size={16} color="#7C3AED" />
             <h3 style={{ fontSize: 15, fontWeight: 600, color: '#0F172A' }}>Quick Wins</h3>
