@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Eye, Plus, RefreshCw, Trash2, X, Bell, Lightbulb, BarChart3, Zap, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import { PageShell } from '@/components/PageShell';
+import { useTheme } from '@/lib/theme';
 import { useWorkspace } from '@/lib/hooks';
 import { useCompetitors } from '@/lib/hooks';
 import { supabase } from '@/lib/supabase';
@@ -35,6 +36,7 @@ type Tab = typeof TABS[number];
 const STATUS_COLS = ['idea', 'review', 'approved', 'production'] as const;
 
 export default function CompetitorsPage() {
+  const { c } = useTheme();
   const { workspace } = useWorkspace();
   const workspaceId = workspace?.id;
   const { competitors, loading: loadingCompetitors, refetch: refetchCompetitors } = useCompetitors(workspaceId);
@@ -231,12 +233,12 @@ export default function CompetitorsPage() {
     return true;
   });
 
-  const card = { backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', padding: '16px' };
+  const card = { backgroundColor: c.bgCard, border: `1px solid ${c.border}`, borderRadius: '12px', padding: '16px' };
   const btn = (active?: boolean) => ({
     padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
-    border: active ? '1px solid #7c3aed' : '1px solid #27272a',
+    border: active ? '1px solid #7c3aed' : `1px solid ${c.border}`,
     background: active ? '#7c3aed22' : 'transparent',
-    color: active ? '#a78bfa' : '#71717a',
+    color: active ? '#a78bfa' : c.textSecondary,
   });
 
   return (
@@ -246,7 +248,7 @@ export default function CompetitorsPage() {
         {/* LEFT SIDEBAR */}
         <div style={{ width: '280px', flexShrink: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Competitors</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: c.textSecondary, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Competitors</span>
             <button onClick={() => { setShowForm(!showForm); setAddError(''); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', border: 'none', background: '#7c3aed', color: 'white', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
               {showForm ? <X size={12} /> : <Plus size={12} />}
               {showForm ? 'Cancel' : 'Add'}
@@ -258,16 +260,16 @@ export default function CompetitorsPage() {
             <div style={{ ...card, marginBottom: '12px', border: '1px solid #7c3aed' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#71717a', marginBottom: '4px' }}>Brand Name *</label>
-                  <input value={formName} onChange={e => setFormName(e.target.value)} placeholder="e.g. Nike" style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #27272a', backgroundColor: '#09090b', color: '#f4f4f5', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: '11px', color: c.textSecondary, marginBottom: '4px' }}>Brand Name *</label>
+                  <input value={formName} onChange={e => setFormName(e.target.value)} placeholder="e.g. Nike" style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: `1px solid ${c.border}`, backgroundColor: c.bgPage, color: c.text, fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#71717a', marginBottom: '4px' }}>Search Term *</label>
-                  <input value={formPage} onChange={e => setFormPage(e.target.value)} placeholder="e.g. Nike" style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #7c3aed', backgroundColor: '#09090b', color: '#f4f4f5', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: '11px', color: c.textSecondary, marginBottom: '4px' }}>Search Term *</label>
+                  <input value={formPage} onChange={e => setFormPage(e.target.value)} placeholder="e.g. Nike" style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #7c3aed', backgroundColor: c.bgPage, color: c.text, fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#71717a', marginBottom: '4px' }}>Domain (optional)</label>
-                  <input value={formDomain} onChange={e => setFormDomain(e.target.value)} placeholder="nike.com" style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #27272a', backgroundColor: '#09090b', color: '#f4f4f5', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: '11px', color: c.textSecondary, marginBottom: '4px' }}>Domain (optional)</label>
+                  <input value={formDomain} onChange={e => setFormDomain(e.target.value)} placeholder="nike.com" style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: `1px solid ${c.border}`, backgroundColor: c.bgPage, color: c.text, fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 {addError && <p style={{ fontSize: '12px', color: '#f87171', margin: 0 }}>{addError}</p>}
                 <button onClick={handleAddCompetitor} disabled={adding || !formName.trim()} style={{ padding: '8px', borderRadius: '8px', border: 'none', background: '#7c3aed', color: 'white', fontSize: '13px', fontWeight: 600, cursor: adding ? 'not-allowed' : 'pointer', opacity: adding ? 0.7 : 1 }}>
@@ -280,28 +282,28 @@ export default function CompetitorsPage() {
           {/* Competitor list */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {loadingCompetitors ? (
-              <p style={{ fontSize: '13px', color: '#52525b', textAlign: 'center', padding: '20px 0' }}>Loading...</p>
+              <p style={{ fontSize: '13px', color: c.textMuted, textAlign: 'center', padding: '20px 0' }}>Loading...</p>
             ) : competitors.length === 0 ? (
-              <p style={{ fontSize: '13px', color: '#52525b', textAlign: 'center', padding: '20px 0' }}>No competitors yet</p>
+              <p style={{ fontSize: '13px', color: c.textMuted, textAlign: 'center', padding: '20px 0' }}>No competitors yet</p>
             ) : competitors.map(c => (
               <div key={c.id} onClick={() => selectCompetitor(c.id)}
-                style={{ ...card, cursor: 'pointer', border: selectedId === c.id ? '1px solid #7c3aed' : '1px solid #27272a', padding: '12px', background: selectedId === c.id ? '#18181b' : '#0f0f10' }}>
+                style={{ ...card, cursor: 'pointer', border: selectedId === c.id ? '1px solid #7c3aed' : `1px solid ${c.border}`, padding: '12px', background: selectedId === c.id ? c.bgCard : c.bgPage }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                   <div>
-                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#f4f4f5' }}>{c.name}</p>
-                    {c.domain && <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#52525b' }}>{c.domain}</p>}
+                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: c.text }}>{c.name}</p>
+                    {c.domain && <p style={{ margin: '2px 0 0', fontSize: '11px', color: c.textMuted }}>{c.domain}</p>}
                   </div>
-                  <button onClick={e => { e.stopPropagation(); handleDelete(c.id); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#52525b', padding: '2px' }}>
+                  <button onClick={e => { e.stopPropagation(); handleDelete(c.id); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: c.textMuted, padding: '2px' }}>
                     <Trash2 size={13} />
                   </button>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <span style={{ fontSize: '12px', color: '#71717a' }}>{c.ad_count ?? 0} ads</span>
+                    <span style={{ fontSize: '12px', color: c.textSecondary }}>{c.ad_count ?? 0} ads</span>
                     {c.spy_score > 0 && <span style={{ fontSize: '12px', color: '#7c3aed' }}>Score {c.spy_score}</span>}
                   </div>
                   <button onClick={e => { e.stopPropagation(); handleScrape(c.id); }} disabled={scrapingId === c.id}
-                    style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '6px', border: 'none', background: scrapingId === c.id ? '#27272a' : '#7c3aed22', color: scrapingId === c.id ? '#52525b' : '#a78bfa', fontSize: '11px', fontWeight: 600, cursor: scrapingId === c.id ? 'not-allowed' : 'pointer' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '6px', border: 'none', background: scrapingId === c.id ? c.bgInput : '#7c3aed22', color: scrapingId === c.id ? c.textMuted : '#a78bfa', fontSize: '11px', fontWeight: 600, cursor: scrapingId === c.id ? 'not-allowed' : 'pointer' }}>
                     <RefreshCw size={10} style={{ animation: scrapingId === c.id ? 'spin 1s linear infinite' : 'none' }} />
                     {scrapingId === c.id ? 'Scraping...' : 'Scrape'}
                   </button>
@@ -317,26 +319,26 @@ export default function CompetitorsPage() {
           {!selectedId ? (
             <div style={{ ...card, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', gap: '12px' }}>
               <Eye size={40} color="#27272a" />
-              <p style={{ color: '#52525b', fontSize: '15px', margin: 0 }}>Select a competitor to view their ads</p>
-              <p style={{ color: '#3f3f46', fontSize: '13px', margin: 0 }}>Add a competitor on the left, then click Scrape to fetch their ads</p>
+              <p style={{ color: c.textMuted, fontSize: '15px', margin: 0 }}>Select a competitor to view their ads</p>
+              <p style={{ color: c.border, fontSize: '13px', margin: 0 }}>Add a competitor on the left, then click Scrape to fetch their ads</p>
             </div>
           ) : (
             <div>
               {/* Competitor header */}
               <div style={{ marginBottom: '16px' }}>
-                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#f4f4f5' }}>{selectedCompetitor?.name}</h2>
+                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: c.text }}>{selectedCompetitor?.name}</h2>
                 <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
-                  <span style={{ fontSize: '13px', color: '#71717a' }}>{selectedCompetitor?.ad_count ?? 0} total ads</span>
+                  <span style={{ fontSize: '13px', color: c.textSecondary }}>{selectedCompetitor?.ad_count ?? 0} total ads</span>
                   {selectedCompetitor?.active_ads_count != null && <span style={{ fontSize: '13px', color: '#4ade80' }}>{selectedCompetitor.active_ads_count} active</span>}
-                  {selectedCompetitor?.last_scraped_at && <span style={{ fontSize: '13px', color: '#52525b' }}>Last scraped {timeAgo(selectedCompetitor.last_scraped_at)}</span>}
+                  {selectedCompetitor?.last_scraped_at && <span style={{ fontSize: '13px', color: c.textMuted }}>Last scraped {timeAgo(selectedCompetitor.last_scraped_at)}</span>}
                 </div>
               </div>
 
               {/* Tabs */}
-              <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid #27272a', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', gap: '0', borderBottom: `1px solid ${c.border}`, marginBottom: '20px' }}>
                 {TABS.map(tab => (
                   <button key={tab} onClick={() => setActiveTab(tab)}
-                    style={{ padding: '10px 18px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 500, color: activeTab === tab ? '#f4f4f5' : '#71717a', borderBottom: activeTab === tab ? '2px solid #7c3aed' : '2px solid transparent', position: 'relative' }}>
+                    style={{ padding: '10px 18px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 500, color: activeTab === tab ? c.text : c.textSecondary, borderBottom: activeTab === tab ? '2px solid #7c3aed' : '2px solid transparent', position: 'relative' }}>
                     {tab}
                     {tab === 'Alerts' && unreadCount > 0 && (
                       <span style={{ marginLeft: '6px', background: '#7c3aed', color: 'white', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '99px' }}>{unreadCount}</span>
@@ -356,9 +358,9 @@ export default function CompetitorsPage() {
                     ))}
                   </div>
                   {loadingAds ? (
-                    <div style={{ textAlign: 'center', padding: '60px', color: '#52525b' }}>Loading ads...</div>
+                    <div style={{ textAlign: 'center', padding: '60px', color: c.textMuted }}>Loading ads...</div>
                   ) : filteredAds.length === 0 ? (
-                    <div style={{ ...card, textAlign: 'center', padding: '60px', color: '#52525b' }}>
+                    <div style={{ ...card, textAlign: 'center', padding: '60px', color: c.textMuted }}>
                       <Eye size={32} color="#27272a" style={{ margin: '0 auto 12px' }} />
                       <p style={{ margin: 0 }}>No ads yet. Click Scrape on the left to fetch ads.</p>
                       {!process.env.NEXT_PUBLIC_META_TOKEN_SET && (
@@ -376,22 +378,22 @@ export default function CompetitorsPage() {
                             {expandedAd === ad.id ? <ChevronUp size={14} color="#52525b" /> : <ChevronDown size={14} color="#52525b" />}
                           </div>
                           {ad.ad_creative_link_title && (
-                            <p style={{ margin: '0 0 6px', fontSize: '14px', fontWeight: 600, color: '#f4f4f5', lineHeight: 1.4 }}>{ad.ad_creative_link_title}</p>
+                            <p style={{ margin: '0 0 6px', fontSize: '14px', fontWeight: 600, color: c.text, lineHeight: 1.4 }}>{ad.ad_creative_link_title}</p>
                           )}
                           {ad.ad_creative_body && (
-                            <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#a1a1aa', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: expandedAd === ad.id ? undefined : 2, WebkitBoxOrient: 'vertical', overflow: expandedAd === ad.id ? 'visible' : 'hidden' }}>
+                            <p style={{ margin: '0 0 8px', fontSize: '13px', color: c.textSecondary, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: expandedAd === ad.id ? undefined : 2, WebkitBoxOrient: 'vertical', overflow: expandedAd === ad.id ? 'visible' : 'hidden' }}>
                               {ad.ad_creative_body}
                             </p>
                           )}
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
                             {(ad.platforms ?? []).map((p: string) => (
-                              <span key={p} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '99px', background: '#1e1b4b', color: '#818cf8' }}>{p}</span>
+                              <span key={p} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '99px', background: c.bgTag, color: '#818cf8' }}>{p}</span>
                             ))}
                             {(ad.impressions_upper ?? 0) > 0 && (
-                              <span style={{ fontSize: '11px', color: '#52525b' }}>{formatNum(ad.impressions_lower)}–{formatNum(ad.impressions_upper)} imp.</span>
+                              <span style={{ fontSize: '11px', color: c.textMuted }}>{formatNum(ad.impressions_lower)}–{formatNum(ad.impressions_upper)} imp.</span>
                             )}
                             {ad.ad_delivery_start_time && (
-                              <span style={{ fontSize: '11px', color: '#52525b' }}>Started {formatDate(ad.ad_delivery_start_time)}</span>
+                              <span style={{ fontSize: '11px', color: c.textMuted }}>Started {formatDate(ad.ad_delivery_start_time)}</span>
                             )}
                           </div>
                           {expandedAd === ad.id && ad.landing_url && (
@@ -408,12 +410,12 @@ export default function CompetitorsPage() {
               {activeTab === 'AI Analysis' && (
                 <div>
                   {loadingAnalysis ? (
-                    <div style={{ textAlign: 'center', padding: '60px', color: '#52525b' }}>Loading analysis...</div>
+                    <div style={{ textAlign: 'center', padding: '60px', color: c.textMuted }}>Loading analysis...</div>
                   ) : !analysis ? (
                     <div style={{ ...card, textAlign: 'center', padding: '60px' }}>
                       <BarChart3 size={40} color="#27272a" style={{ margin: '0 auto 16px' }} />
-                      <p style={{ margin: '0 0 8px', color: '#a1a1aa', fontSize: '15px' }}>No analysis yet</p>
-                      <p style={{ margin: '0 0 20px', color: '#52525b', fontSize: '13px' }}>Run AI analysis to get hook patterns, messaging angles, and counter-strategies</p>
+                      <p style={{ margin: '0 0 8px', color: c.textSecondary, fontSize: '15px' }}>No analysis yet</p>
+                      <p style={{ margin: '0 0 20px', color: c.textMuted, fontSize: '13px' }}>Run AI analysis to get hook patterns, messaging angles, and counter-strategies</p>
                       {analyseError && <p style={{ color: '#f87171', fontSize: '13px', margin: '0 0 12px' }}>{analyseError}</p>}
                       <button onClick={handleAnalyse} disabled={analysing} style={{ padding: '10px 24px', borderRadius: '10px', border: 'none', background: '#7c3aed', color: 'white', fontSize: '14px', fontWeight: 600, cursor: analysing ? 'not-allowed' : 'pointer', opacity: analysing ? 0.7 : 1 }}>
                         {analysing ? '⟳ Analysing...' : '✦ Run AI Analysis'}
@@ -422,8 +424,8 @@ export default function CompetitorsPage() {
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '13px', color: '#52525b' }}>Last analysed {timeAgo(analysis.created_at)} · {analysis.ads_analysed_count} ads</span>
-                        <button onClick={handleAnalyse} disabled={analysing} style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid #27272a', background: 'transparent', color: '#71717a', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                        <span style={{ fontSize: '13px', color: c.textMuted }}>Last analysed {timeAgo(analysis.created_at)} · {analysis.ads_analysed_count} ads</span>
+                        <button onClick={handleAnalyse} disabled={analysing} style={{ padding: '6px 14px', borderRadius: '8px', border: `1px solid ${c.border}`, background: 'transparent', color: c.textSecondary, fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
                           {analysing ? 'Analysing...' : 'Re-analyse'}
                         </button>
                       </div>
@@ -431,14 +433,14 @@ export default function CompetitorsPage() {
                       {/* Hook Patterns */}
                       {analysis.hook_patterns?.length > 0 && (
                         <div style={card}>
-                          <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: '#f4f4f5' }}>🎣 Hook Patterns</h4>
+                          <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: c.text }}>🎣 Hook Patterns</h4>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {analysis.hook_patterns.map((h: any, i: number) => (
                               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                                <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '99px', background: '#1e1b4b', color: '#818cf8', flexShrink: 0 }}>{h.count}x</span>
+                                <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '99px', background: c.bgTag, color: '#818cf8', flexShrink: 0 }}>{h.count}x</span>
                                 <div>
-                                  <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: '#f4f4f5' }}>{h.pattern}</p>
-                                  {h.example && <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#71717a', fontStyle: 'italic' }}>"{h.example}"</p>}
+                                  <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: c.text }}>{h.pattern}</p>
+                                  {h.example && <p style={{ margin: '2px 0 0', fontSize: '12px', color: c.textSecondary, fontStyle: 'italic' }}>"{h.example}"</p>}
                                 </div>
                               </div>
                             ))}
@@ -449,14 +451,14 @@ export default function CompetitorsPage() {
                       {/* Messaging Angles */}
                       {analysis.messaging_angles?.length > 0 && (
                         <div style={card}>
-                          <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: '#f4f4f5' }}>📢 Messaging Angles</h4>
+                          <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: c.text }}>📢 Messaging Angles</h4>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {analysis.messaging_angles.map((a: any, i: number) => (
                               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                                 <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '99px', background: a.strength === 'primary' ? '#052e16' : '#1c1917', color: a.strength === 'primary' ? '#4ade80' : '#78716c', flexShrink: 0 }}>{a.strength}</span>
                                 <div>
-                                  <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: '#f4f4f5' }}>{a.angle}</p>
-                                  {a.description && <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#71717a' }}>{a.description}</p>}
+                                  <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: c.text }}>{a.angle}</p>
+                                  {a.description && <p style={{ margin: '2px 0 0', fontSize: '12px', color: c.textSecondary }}>{a.description}</p>}
                                 </div>
                               </div>
                             ))}
@@ -467,12 +469,12 @@ export default function CompetitorsPage() {
                       {/* Offer Mechanics */}
                       {analysis.offer_mechanics?.length > 0 && (
                         <div style={card}>
-                          <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: '#f4f4f5' }}>💰 Offer Mechanics</h4>
+                          <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: c.text }}>💰 Offer Mechanics</h4>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                             {analysis.offer_mechanics.map((o: any, i: number) => (
-                              <div key={i} style={{ padding: '8px 12px', borderRadius: '8px', background: '#18181b', border: '1px solid #27272a' }}>
-                                <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: '#f4f4f5' }}>{o.type}</p>
-                                <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#71717a' }}>{o.frequency}x · {o.example}</p>
+                              <div key={i} style={{ padding: '8px 12px', borderRadius: '8px', background: c.bgCard, border: `1px solid ${c.border}` }}>
+                                <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: c.text }}>{o.type}</p>
+                                <p style={{ margin: '2px 0 0', fontSize: '11px', color: c.textSecondary }}>{o.frequency}x · {o.example}</p>
                               </div>
                             ))}
                           </div>
@@ -482,8 +484,8 @@ export default function CompetitorsPage() {
                       {/* Visual Style */}
                       {analysis.visual_style && (
                         <div style={card}>
-                          <h4 style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 600, color: '#f4f4f5' }}>🎨 Visual Style</h4>
-                          <p style={{ margin: 0, fontSize: '13px', color: '#a1a1aa', lineHeight: 1.6 }}>{analysis.visual_style}</p>
+                          <h4 style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 600, color: c.text }}>🎨 Visual Style</h4>
+                          <p style={{ margin: 0, fontSize: '13px', color: c.textSecondary, lineHeight: 1.6 }}>{analysis.visual_style}</p>
                         </div>
                       )}
                     </div>
@@ -497,8 +499,8 @@ export default function CompetitorsPage() {
                   {ideas.length === 0 ? (
                     <div style={{ ...card, textAlign: 'center', padding: '60px' }}>
                       <Lightbulb size={40} color="#27272a" style={{ margin: '0 auto 16px' }} />
-                      <p style={{ margin: '0 0 8px', color: '#a1a1aa', fontSize: '15px' }}>No ideas yet</p>
-                      <p style={{ margin: '0 0 20px', color: '#52525b', fontSize: '13px' }}>Run AI Analysis first to generate counter-strategy ad ideas</p>
+                      <p style={{ margin: '0 0 8px', color: c.textSecondary, fontSize: '15px' }}>No ideas yet</p>
+                      <p style={{ margin: '0 0 20px', color: c.textMuted, fontSize: '13px' }}>Run AI Analysis first to generate counter-strategy ad ideas</p>
                       <button onClick={() => setActiveTab('AI Analysis')} style={{ padding: '10px 24px', borderRadius: '10px', border: 'none', background: '#7c3aed', color: 'white', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
                         Go to AI Analysis
                       </button>
@@ -507,20 +509,20 @@ export default function CompetitorsPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
                       {STATUS_COLS.map(col => (
                         <div key={col}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', padding: '8px 12px', borderRadius: '8px', background: '#18181b' }}>
-                            <span style={{ fontSize: '12px', fontWeight: 700, color: '#a1a1aa', textTransform: 'capitalize' }}>{col}</span>
-                            <span style={{ fontSize: '11px', background: '#27272a', color: '#71717a', padding: '1px 6px', borderRadius: '99px' }}>{ideas.filter(i => i.status === col).length}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', padding: '8px 12px', borderRadius: '8px', background: c.bgCard }}>
+                            <span style={{ fontSize: '12px', fontWeight: 700, color: c.textSecondary, textTransform: 'capitalize' }}>{col}</span>
+                            <span style={{ fontSize: '11px', background: c.bgInput, color: c.textSecondary, padding: '1px 6px', borderRadius: '99px' }}>{ideas.filter(i => i.status === col).length}</span>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {ideas.filter(i => i.status === col).map(idea => (
                               <div key={idea.id} style={{ ...card, padding: '12px' }}>
-                                <p style={{ margin: '0 0 6px', fontSize: '13px', fontWeight: 600, color: '#f4f4f5', lineHeight: 1.4 }}>{idea.hook}</p>
-                                {idea.body_copy && <p style={{ margin: '0 0 8px', fontSize: '12px', color: '#71717a', lineHeight: 1.5 }}>{idea.body_copy.slice(0, 100)}{idea.body_copy.length > 100 ? '...' : ''}</p>}
+                                <p style={{ margin: '0 0 6px', fontSize: '13px', fontWeight: 600, color: c.text, lineHeight: 1.4 }}>{idea.hook}</p>
+                                {idea.body_copy && <p style={{ margin: '0 0 8px', fontSize: '12px', color: c.textSecondary, lineHeight: 1.5 }}>{idea.body_copy.slice(0, 100)}{idea.body_copy.length > 100 ? '...' : ''}</p>}
                                 {idea.cta && <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '99px', background: '#7c3aed22', color: '#a78bfa', display: 'inline-block', marginBottom: '8px' }}>{idea.cta}</span>}
-                                {idea.counter_angle && <p style={{ margin: '0 0 8px', fontSize: '11px', color: '#52525b', fontStyle: 'italic' }}>{idea.counter_angle}</p>}
+                                {idea.counter_angle && <p style={{ margin: '0 0 8px', fontSize: '11px', color: c.textMuted, fontStyle: 'italic' }}>{idea.counter_angle}</p>}
                                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                                   {STATUS_COLS.filter(s => s !== col).map(s => (
-                                    <button key={s} onClick={() => handleIdeaStatus(idea.id, s)} style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', border: '1px solid #27272a', background: 'transparent', color: '#52525b', cursor: 'pointer' }}>
+                                    <button key={s} onClick={() => handleIdeaStatus(idea.id, s)} style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', border: `1px solid ${c.border}`, background: 'transparent', color: c.textMuted, cursor: 'pointer' }}>
                                       → {s}
                                     </button>
                                   ))}
@@ -539,17 +541,17 @@ export default function CompetitorsPage() {
               {activeTab === 'Alerts' && (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <span style={{ fontSize: '13px', color: '#71717a' }}>{unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}</span>
+                    <span style={{ fontSize: '13px', color: c.textSecondary }}>{unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}</span>
                     {unreadCount > 0 && (
-                      <button onClick={handleMarkAlertsRead} style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid #27272a', background: 'transparent', color: '#71717a', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                      <button onClick={handleMarkAlertsRead} style={{ padding: '6px 14px', borderRadius: '8px', border: `1px solid ${c.border}`, background: 'transparent', color: c.textSecondary, fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
                         Mark all read
                       </button>
                     )}
                   </div>
                   {loadingAlerts ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: '#52525b' }}>Loading alerts...</div>
+                    <div style={{ textAlign: 'center', padding: '40px', color: c.textMuted }}>Loading alerts...</div>
                   ) : alerts.length === 0 ? (
-                    <div style={{ ...card, textAlign: 'center', padding: '60px', color: '#52525b' }}>
+                    <div style={{ ...card, textAlign: 'center', padding: '60px', color: c.textMuted }}>
                       <Bell size={32} color="#27272a" style={{ margin: '0 auto 12px' }} />
                       <p style={{ margin: 0 }}>No changes detected yet. Scrape to start monitoring.</p>
                     </div>
@@ -561,8 +563,8 @@ export default function CompetitorsPage() {
                             {alert.change_type === 'new_ad' ? <Zap size={14} color="#4ade80" /> : <Bell size={14} color="#f59e0b" />}
                           </div>
                           <div style={{ flex: 1 }}>
-                            <p style={{ margin: 0, fontSize: '13px', color: '#f4f4f5' }}>{alert.description}</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#52525b' }}>{timeAgo(alert.created_at)}</p>
+                            <p style={{ margin: 0, fontSize: '13px', color: c.text }}>{alert.description}</p>
+                            <p style={{ margin: '2px 0 0', fontSize: '11px', color: c.textMuted }}>{timeAgo(alert.created_at)}</p>
                           </div>
                           {!alert.seen_at && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#7c3aed', flexShrink: 0, marginTop: '6px' }} />}
                         </div>

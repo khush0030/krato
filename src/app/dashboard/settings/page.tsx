@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Search, BarChart3, Target, Share2, Check, X, Plug, User, Bell, Shield, CreditCard, RefreshCw, Loader2, Palette, Upload, Users, Mail, Crown } from "lucide-react";
 import { useWorkspace, useIntegrations, connectIntegration, syncIntegration } from "@/lib/hooks";
 import { supabase } from "@/lib/supabase";
+import { useTheme } from "@/lib/theme";
 
 const BRAND_COLORS = [
   { label: 'Purple', value: '#7c3aed' },
@@ -14,6 +15,7 @@ const BRAND_COLORS = [
 ];
 
 function NotificationsTab() {
+  const { c } = useTheme();
   const notifItems = [
     { id: "traffic", label: "Traffic Alerts", desc: "Get notified when traffic spikes or drops significantly" },
     { id: "ads", label: "Ad Alerts", desc: "Budget exhaustion, CPC spikes, ROAS drops" },
@@ -30,16 +32,16 @@ function NotificationsTab() {
 
   return (
     <div style={{ maxWidth: "560px" }}>
-      <div style={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "16px", overflow: "hidden", marginBottom: "20px" }}>
+      <div style={{ backgroundColor: c.bgCard, border: `1px solid ${c.border}`, borderRadius: "16px", overflow: "hidden", marginBottom: "20px" }}>
         {notifItems.map((item, i) => (
-          <div key={item.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: i < notifItems.length - 1 ? "1px solid #27272a" : "none" }}>
+          <div key={item.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: i < notifItems.length - 1 ? `1px solid ${c.border}` : "none" }}>
             <div>
-              <div style={{ fontSize: "14px", fontWeight: 500, color: "#e4e4e7" }}>{item.label}</div>
-              <div style={{ fontSize: "12px", color: "#71717a", marginTop: "2px" }}>{item.desc}</div>
+              <div style={{ fontSize: "14px", fontWeight: 500, color: c.text }}>{item.label}</div>
+              <div style={{ fontSize: "12px", color: c.textSecondary, marginTop: "2px" }}>{item.desc}</div>
             </div>
             <div
               onClick={() => setToggles(t => ({ ...t, [item.id]: !t[item.id] }))}
-              style={{ width: "42px", height: "24px", borderRadius: "12px", cursor: "pointer", position: "relative", backgroundColor: toggles[item.id] ? "#7c3aed" : "#3f3f46", transition: "background-color 0.2s", flexShrink: 0 }}
+              style={{ width: "42px", height: "24px", borderRadius: "12px", cursor: "pointer", position: "relative", backgroundColor: toggles[item.id] ? "#7c3aed" : c.border, transition: "background-color 0.2s", flexShrink: 0 }}
             >
               <div style={{ width: "18px", height: "18px", borderRadius: "50%", backgroundColor: "white", position: "absolute", top: "3px", left: toggles[item.id] ? "21px" : "3px", transition: "left 0.2s" }} />
             </div>
@@ -54,6 +56,7 @@ function NotificationsTab() {
 }
 
 function BrandTab({ workspace }: { workspace: any }) {
+  const { c } = useTheme();
   const [brandName, setBrandName] = useState(workspace?.name || '');
   const [brandColor, setBrandColor] = useState(workspace?.brand_color || '#7c3aed');
   const [logoUrl, setLogoUrl] = useState(workspace?.logo_url || '');
@@ -224,6 +227,7 @@ const tabs = [
 ];
 
 export default function SettingsPage() {
+  const { c } = useTheme();
   const [activeTab, setActiveTab] = useState("integrations");
   const { workspace, loading: wsLoading } = useWorkspace();
   const { integrations, loading: intLoading, refetch } = useIntegrations(workspace?.id);
@@ -332,18 +336,18 @@ export default function SettingsPage() {
   return (
     <div>
       <div style={{ marginBottom: "28px" }}>
-        <h1 style={{ fontSize: "26px", fontWeight: 800, color: "#f4f4f5", letterSpacing: "-0.5px" }}>Settings</h1>
-        <p style={{ fontSize: "14px", color: "#71717a", marginTop: "4px" }}>Manage integrations, brand, and preferences</p>
+        <h1 style={{ fontSize: "26px", fontWeight: 800, color: c.text, letterSpacing: "-0.5px" }}>Settings</h1>
+        <p style={{ fontSize: "14px", color: c.textSecondary, marginTop: "4px" }}>Manage integrations, brand, and preferences</p>
       </div>
 
-      <div style={{ display: "flex", gap: "4px", marginBottom: "24px", borderBottom: "1px solid #27272a", overflowX: "auto" }}>
+      <div style={{ display: "flex", gap: "4px", marginBottom: "24px", borderBottom: `1px solid ${c.border}`, overflowX: "auto" }}>
         {tabs.map(t => {
           const Icon = t.icon;
           return (
             <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
               display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px", fontSize: "14px",
               fontWeight: activeTab === t.id ? 600 : 400,
-              color: activeTab === t.id ? "#f4f4f5" : "#71717a",
+              color: activeTab === t.id ? c.text : c.textSecondary,
               backgroundColor: "transparent", border: "none",
               borderBottom: `2px solid ${activeTab === t.id ? "#7c3aed" : "transparent"}`,
               cursor: "pointer", marginBottom: "-1px", whiteSpace: "nowrap",
@@ -357,13 +361,13 @@ export default function SettingsPage() {
       {activeTab === "integrations" && (
         <div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px", flexWrap: "wrap", gap: 10 }}>
-            <p style={{ fontSize: "14px", color: "#71717a", margin: 0 }}>
+            <p style={{ fontSize: "14px", color: c.textSecondary, margin: 0 }}>
               Connect your marketing accounts to start syncing real data.
               {wsLoading && " Loading..."}
               {workspace && <span style={{ color: "#10b981" }}> · {workspace.name}</span>}
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 11, color: "#52525b" }}>Auto-syncs daily at 2AM UTC</span>
+              <span style={{ fontSize: 11, color: c.textMuted }}>Auto-syncs daily at 2AM UTC</span>
               <button
                 onClick={handleSyncAll}
                 disabled={syncing === 'all'}
@@ -381,23 +385,23 @@ export default function SettingsPage() {
               const int = getIntegration(p.id);
               const isSyncing = syncing === p.id;
               return (
-                <div key={p.id} style={{ backgroundColor: "#18181b", border: `1px solid ${connected ? "rgba(16,185,129,0.3)" : "#27272a"}`, borderRadius: "16px", padding: "24px" }}>
+                <div key={p.id} style={{ backgroundColor: c.bgCard, border: `1px solid ${connected ? "rgba(16,185,129,0.3)" : c.bgInput}`, borderRadius: "16px", padding: "24px" }}>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                       <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: `${p.color}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <Icon size={22} color={p.color} />
                       </div>
                       <div>
-                        <div style={{ fontSize: "15px", fontWeight: 700, color: "#f4f4f5" }}>{p.name}</div>
-                        <div style={{ fontSize: "12px", color: connected ? "#10b981" : "#52525b", display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
+                        <div style={{ fontSize: "15px", fontWeight: 700, color: c.text }}>{p.name}</div>
+                        <div style={{ fontSize: "12px", color: connected ? "#10b981" : c.textMuted, display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
                           {connected ? <><Check size={12} /> Connected{int?.display_name ? ` · ${int.display_name}` : ""}</> : <><X size={12} /> Not connected</>}
                         </div>
                       </div>
                     </div>
                   </div>
-                  <p style={{ fontSize: "13px", color: "#71717a", marginBottom: "16px", lineHeight: 1.4 }}>{p.desc}</p>
+                  <p style={{ fontSize: "13px", color: c.textSecondary, marginBottom: "16px", lineHeight: 1.4 }}>{p.desc}</p>
                   {int?.last_sync_at && (
-                    <p style={{ fontSize: "11px", color: "#52525b", marginBottom: "12px" }}>
+                    <p style={{ fontSize: "11px", color: c.textMuted, marginBottom: "12px" }}>
                       Last synced: {new Date(int.last_sync_at).toLocaleString()}
                     </p>
                   )}
@@ -405,15 +409,15 @@ export default function SettingsPage() {
                     <button onClick={() => connected ? null : handleConnect(p.id)} style={{
                       flex: 1, padding: "10px", borderRadius: "10px", fontSize: "14px", fontWeight: 600, cursor: "pointer",
                       background: connected ? "transparent" : "linear-gradient(135deg, #7c3aed, #4f46e5)",
-                      color: connected ? "#71717a" : "white",
-                      border: connected ? "1px solid #3f3f46" : "none",
+                      color: connected ? c.textSecondary : "white",
+                      border: connected ? `1px solid ${c.border}` : "none",
                     }}>
                       {connected ? "Connected ✓" : "Connect"}
                     </button>
                     {connected && (
                       <button onClick={() => handleSync(p.id)} disabled={isSyncing} style={{
                         padding: "10px 16px", borderRadius: "10px", fontSize: "13px", fontWeight: 600, cursor: isSyncing ? "wait" : "pointer",
-                        background: "#27272a", color: "#d4d4d8", border: "1px solid #3f3f46",
+                        background: c.bgInput, color: c.textSecondary, border: `1px solid ${c.border}`,
                         display: "flex", alignItems: "center", gap: "6px", opacity: isSyncing ? 0.6 : 1,
                       }}>
                         {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
@@ -431,24 +435,24 @@ export default function SettingsPage() {
       {activeTab === "team" && (
         <div style={{ maxWidth: 560 }}>
           {/* Slots indicator */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderRadius: 12, backgroundColor: "#18181b", border: "1px solid #27272a", marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderRadius: 12, backgroundColor: c.bgCard, border: `1px solid ${c.border}`, marginBottom: 20 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <Crown size={16} color="#f59e0b" />
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "#f4f4f5" }}>Free Plan</div>
-                <div style={{ fontSize: 12, color: "#71717a" }}>Up to {teamData?.maxSlots || 2} additional team members</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: c.text }}>Free Plan</div>
+                <div style={{ fontSize: 12, color: c.textSecondary }}>Up to {teamData?.maxSlots || 2} additional team members</div>
               </div>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#f4f4f5", fontFamily: "var(--font-display)" }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: c.text, fontFamily: "var(--font-display)" }}>
               {teamData?.slotsUsed || 0} / {teamData?.maxSlots || 2}
-              <span style={{ fontSize: 12, color: "#71717a", fontFamily: "var(--font-body)", fontWeight: 400, marginLeft: 4 }}>used</span>
+              <span style={{ fontSize: 12, color: c.textSecondary, fontFamily: "var(--font-body)", fontWeight: 400, marginLeft: 4 }}>used</span>
             </div>
           </div>
 
           {/* Invite form */}
-          <div style={{ padding: "20px 24px", borderRadius: 12, backgroundColor: "#18181b", border: "1px solid #27272a", marginBottom: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: "#f4f4f5", marginBottom: 4 }}>Invite a team member</h3>
-            <p style={{ fontSize: 13, color: "#71717a", marginBottom: 16 }}>They'll receive an email with a link to sign up and join your workspace.</p>
+          <div style={{ padding: "20px 24px", borderRadius: 12, backgroundColor: c.bgCard, border: `1px solid ${c.border}`, marginBottom: 20 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: c.text, marginBottom: 4 }}>Invite a team member</h3>
+            <p style={{ fontSize: 13, color: c.textSecondary, marginBottom: 16 }}>They'll receive an email with a link to sign up and join your workspace.</p>
             <form onSubmit={handleInvite} style={{ display: "flex", gap: 10 }}>
               <div style={{ position: "relative", flex: 1 }}>
                 <Mail size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#475569" }} />
@@ -459,7 +463,7 @@ export default function SettingsPage() {
                   placeholder="colleague@company.com"
                   required
                   disabled={teamData?.canInviteMore === false}
-                  style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 8, border: "1px solid #334155", backgroundColor: "#0f172a", color: "#f8fafc", fontSize: 14, outline: "none", boxSizing: "border-box", opacity: teamData?.canInviteMore === false ? 0.5 : 1 }}
+                  style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 8, border: `1px solid ${c.border}`, backgroundColor: c.bgPage, color: "#f8fafc", fontSize: 14, outline: "none", boxSizing: "border-box", opacity: teamData?.canInviteMore === false ? 0.5 : 1 }}
                   onFocus={e => (e.target as HTMLInputElement).style.borderColor = "#7c3aed"}
                   onBlur={e => (e.target as HTMLInputElement).style.borderColor = "#334155"}
                 />
@@ -486,18 +490,18 @@ export default function SettingsPage() {
 
           {/* Pending invites */}
           {teamData?.invites && teamData.invites.length > 0 && (
-            <div style={{ padding: "20px 24px", borderRadius: 12, backgroundColor: "#18181b", border: "1px solid #27272a" }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: "#f4f4f5", marginBottom: 16 }}>Pending Invites</h3>
+            <div style={{ padding: "20px 24px", borderRadius: 12, backgroundColor: c.bgCard, border: `1px solid ${c.border}` }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: c.text, marginBottom: 16 }}>Pending Invites</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {teamData.invites.map((inv: any) => (
-                  <div key={inv.id || inv.email} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 8, backgroundColor: "#0f172a", border: "1px solid #1e293b" }}>
+                  <div key={inv.id || inv.email} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 8, backgroundColor: c.bgPage, border: `1px solid ${c.borderSubtle}` }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <div style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#7c3aed" }}>
                         {inv.email[0].toUpperCase()}
                       </div>
                       <div>
-                        <div style={{ fontSize: 14, color: "#f4f4f5" }}>{inv.email}</div>
-                        <div style={{ fontSize: 11, color: "#52525b" }}>Invited {new Date(inv.created_at).toLocaleDateString()}</div>
+                        <div style={{ fontSize: 14, color: c.text }}>{inv.email}</div>
+                        <div style={{ fontSize: 11, color: c.textMuted }}>Invited {new Date(inv.created_at).toLocaleDateString()}</div>
                       </div>
                     </div>
                     <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 6, backgroundColor: inv.status === "accepted" ? "rgba(34,197,94,0.1)" : "rgba(245,158,11,0.1)", color: inv.status === "accepted" ? "#22c55e" : "#f59e0b" }}>
@@ -514,12 +518,12 @@ export default function SettingsPage() {
       {activeTab === "brand" && <BrandTab workspace={workspace} />}
 
       {activeTab === "profile" && (
-        <div style={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "16px", padding: "24px", maxWidth: "500px" }}>
-          <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#f4f4f5", marginBottom: "20px" }}>Profile Settings</h3>
+        <div style={{ backgroundColor: c.bgCard, border: `1px solid ${c.border}`, borderRadius: "16px", padding: "24px", maxWidth: "500px" }}>
+          <h3 style={{ fontSize: "16px", fontWeight: 700, color: c.text, marginBottom: "20px" }}>Profile Settings</h3>
           {["Full Name", "Email", "Company"].map(field => (
             <div key={field} style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#a1a1aa", marginBottom: "6px" }}>{field}</label>
-              <input placeholder={field} style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1px solid #3f3f46", backgroundColor: "#27272a", color: "white", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: c.textSecondary, marginBottom: "6px" }}>{field}</label>
+              <input placeholder={field} style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: `1px solid ${c.border}`, backgroundColor: c.bgInput, color: "white", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
             </div>
           ))}
           <button style={{ padding: "10px 24px", borderRadius: "10px", background: "linear-gradient(135deg, #7c3aed, #4f46e5)", color: "white", fontSize: "14px", fontWeight: 600, border: "none", cursor: "pointer" }}>Save Changes</button>
@@ -530,7 +534,7 @@ export default function SettingsPage() {
 
       {activeTab !== "integrations" && activeTab !== "brand" && activeTab !== "profile" && activeTab !== "notifications" && (
         <div style={{ textAlign: "center", padding: "60px 20px", borderRadius: "16px", border: "1px dashed #27272a" }}>
-          <p style={{ fontSize: "15px", color: "#52525b" }}>Coming soon — {activeTab} settings</p>
+          <p style={{ fontSize: "15px", color: c.textMuted }}>Coming soon — {activeTab} settings</p>
         </div>
       )}
     </div>

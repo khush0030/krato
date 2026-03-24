@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Bell, AlertCircle, AlertTriangle, Info, CheckCircle2, TrendingDown, TrendingUp, Search, BarChart3, X, RefreshCw } from 'lucide-react';
 import { PageShell } from '@/components/PageShell';
 import { useWorkspace, useGSCData, useGA4Data } from '@/lib/hooks';
+import { useTheme } from '@/lib/theme';
 
 type Alert = {
   id: string;
@@ -130,6 +131,7 @@ export default function AlertsPage() {
   const { data: gscResp, loading: gscLoading } = useGSCData(workspace?.id, 'keywords', 30);
   const { data: ga4Resp, loading: ga4Loading } = useGA4Data(workspace?.id, 'overview', 30);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const { c } = useTheme();
 
   const loading = gscLoading || ga4Loading;
   const gscKeywords = gscResp?.keywords || [];
@@ -167,7 +169,7 @@ export default function AlertsPage() {
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {[1,2,3].map(i => (
-            <div key={i} style={{ height: 80, backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: 12 }} />
+            <div key={i} style={{ height: 80, backgroundColor: c.bgCard, border: `1px solid ${c.border}`, borderRadius: 12 }} />
           ))}
         </div>
       ) : (
@@ -178,8 +180,8 @@ export default function AlertsPage() {
               <div key={alert.id} style={{ padding: '16px 20px', borderRadius: 12, backgroundColor: cfg.bg, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                 <cfg.icon size={20} color={cfg.color} style={{ flexShrink: 0, marginTop: 1 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#f4f4f5', marginBottom: 4 }}>{alert.title}</div>
-                  <div style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5 }}>{alert.detail}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: c.text, marginBottom: 4 }}>{alert.title}</div>
+                  <div style={{ fontSize: 13, color: c.textSecondary, lineHeight: 1.5 }}>{alert.detail}</div>
                   <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, backgroundColor: `${cfg.color}15`, color: cfg.color }}>
                       {alert.source}
@@ -213,9 +215,9 @@ export default function AlertsPage() {
 
       {/* Setup note if no data */}
       {!loading && gscKeywords.length === 0 && ga4Data.length === 0 && (
-        <div style={{ marginTop: 20, padding: 20, borderRadius: 12, backgroundColor: '#18181b', border: '1px solid #27272a', textAlign: 'center' }}>
-          <Bell size={28} color="#334155" style={{ marginBottom: 10 }} />
-          <p style={{ fontSize: 14, color: '#64748B', marginBottom: 8 }}>Connect and sync GSC or GA4 to get real-time alerts</p>
+        <div style={{ marginTop: 20, padding: 20, borderRadius: 12, backgroundColor: c.bgCard, border: `1px solid ${c.border}`, textAlign: 'center' }}>
+          <Bell size={28} color={c.textMuted} style={{ marginBottom: 10 }} />
+          <p style={{ fontSize: 14, color: c.textSecondary, marginBottom: 8 }}>Connect and sync GSC or GA4 to get real-time alerts</p>
           <a href="/dashboard/settings" style={{ fontSize: 13, color: '#7c3aed', textDecoration: 'none', fontWeight: 500 }}>Go to Settings →</a>
         </div>
       )}

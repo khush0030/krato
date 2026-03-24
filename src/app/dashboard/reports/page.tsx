@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import { FileText, Download, BarChart3, Search, TrendingUp, Loader2, CheckCircle2, FileDown, Sparkles, Calendar, ChevronDown } from 'lucide-react';
 import { PageShell } from '@/components/PageShell';
 import { useWorkspace, useGSCData, useGA4Data, DateRangeParams } from '@/lib/hooks';
+import { useTheme } from '@/lib/theme';
 
 const DATE_PRESETS = [
   { label: 'Last 7 days', days: 7 },
@@ -781,6 +782,7 @@ async function downloadPDF(html: string, filename: string) {
 
 export default function ReportsPage() {
   const { workspace } = useWorkspace();
+  const { c } = useTheme();
 
   // Date range state
   const [selectedPreset, setSelectedPreset] = useState(2); // default: Last 30 days
@@ -869,8 +871,8 @@ export default function ReportsPage() {
             style={{
               display: 'flex', alignItems: 'center', gap: 8,
               padding: '8px 14px', borderRadius: 9,
-              backgroundColor: '#27272a', border: '1px solid #3f3f46',
-              color: '#f4f4f5', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              backgroundColor: c.bgInput, border: `1px solid ${c.border}`,
+            color: c.text, fontSize: 13, fontWeight: 600, cursor: 'pointer',
             }}
           >
             <span>{DATE_PRESETS[selectedPreset].days === 0 && customStart ? `${customStart} → ${customEnd}` : DATE_PRESETS[selectedPreset].label}</span>
@@ -879,7 +881,7 @@ export default function ReportsPage() {
           {showPresetMenu && (
             <div style={{
               position: 'absolute', top: '110%', left: 0, zIndex: 50,
-              backgroundColor: '#1c1c1f', border: '1px solid #3f3f46',
+              backgroundColor: c.bgCard, border: `1px solid ${c.border}`,
               borderRadius: 10, overflow: 'hidden', minWidth: 180, boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
             }}>
               {DATE_PRESETS.map((p, i) => (
@@ -891,7 +893,7 @@ export default function ReportsPage() {
                 }} style={{
                   display: 'block', width: '100%', textAlign: 'left',
                   padding: '10px 16px', fontSize: 13, fontWeight: 500,
-                  color: selectedPreset === i ? '#7c3aed' : '#d4d4d8',
+                  color: selectedPreset === i ? '#7c3aed' : c.text,
                   backgroundColor: selectedPreset === i ? 'rgba(124,58,237,0.1)' : 'transparent',
                   border: 'none', cursor: 'pointer',
                 }}>
@@ -910,7 +912,7 @@ export default function ReportsPage() {
               onChange={e => setCustomStart(e.target.value)}
               style={{
                 padding: '7px 10px', borderRadius: 8, border: '1px solid #3f3f46',
-                backgroundColor: '#27272a', color: '#f4f4f5', fontSize: 13,
+                backgroundColor: c.bgInput, color: c.text, fontSize: 13,
               }}
             />
             <span style={{ color: '#52525b', fontSize: 13 }}>→</span>
@@ -920,7 +922,7 @@ export default function ReportsPage() {
               onChange={e => setCustomEnd(e.target.value)}
               style={{
                 padding: '7px 10px', borderRadius: 8, border: '1px solid #3f3f46',
-                backgroundColor: '#27272a', color: '#f4f4f5', fontSize: 13,
+                backgroundColor: c.bgInput, color: c.text, fontSize: 13,
               }}
             />
           </div>
@@ -935,7 +937,7 @@ export default function ReportsPage() {
       </div>
 
       {!hasData && !loading && (
-        <div style={{ padding: 32, borderRadius: 14, backgroundColor: '#18181b', border: '1px solid #27272a', textAlign: 'center', marginBottom: 24 }}>
+        <div style={{ padding: 32, borderRadius: 14, backgroundColor: c.bgCard, border: `1px solid ${c.border}`, textAlign: 'center', marginBottom: 24 }}>
           <FileText size={32} color="#334155" style={{ marginBottom: 12 }} />
           <p style={{ fontSize: 15, fontWeight: 600, color: '#f4f4f5', marginBottom: 6 }}>No data connected yet</p>
           <p style={{ fontSize: 13, color: '#64748b', marginBottom: 14 }}>Connect and sync GSC or GA4 to generate branded reports with real data</p>
@@ -954,7 +956,7 @@ export default function ReportsPage() {
         {reportTypes.map(rt => {
           const Icon = rt.icon;
           return (
-            <div key={rt.id} style={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: 16, padding: 24 }}>
+            <div key={rt.id} style={{ backgroundColor: c.bgCard, border: `1px solid ${c.border}`, borderRadius: 16, padding: 24 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                 <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: `${rt.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Icon size={22} color={rt.color} />
@@ -967,7 +969,7 @@ export default function ReportsPage() {
 
               <div style={{ marginBottom: 18 }}>
                 {rt.sections.map(s => (
-                  <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 0', borderBottom: '1px solid #1e1e22', fontSize: 12, color: '#71717a' }}>
+                  <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 0', borderBottom: '1px solid #1e1e22', fontSize: 12, color: c.textSecondary }}>
                     <CheckCircle2 size={11} color="#374151" />
                     {s}
                   </div>
@@ -1011,7 +1013,7 @@ export default function ReportsPage() {
         })}
       </div>
 
-      <div style={{ marginTop: 20, padding: '14px 18px', borderRadius: 10, backgroundColor: '#18181b', border: '1px solid #27272a', fontSize: 12, color: '#52525b', lineHeight: 1.6 }}>
+      <div style={{ marginTop: 20, padding: '14px 18px', borderRadius: 10, backgroundColor: c.bgCard, border: `1px solid ${c.border}`, fontSize: 12, color: c.textSecondary, lineHeight: 1.6 }}>
         💡 <strong style={{ color: '#71717a' }}>How to send to a client:</strong> Click "Open & Print PDF" → the report opens in a new tab → press Cmd/Ctrl+P → select "Save as PDF" → send the PDF. Reports include your brand name, reporting period, and all data with AI recommendations.
       </div>
     </PageShell>

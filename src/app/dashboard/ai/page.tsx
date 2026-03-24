@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, type ReactElement } from 'react';
 import { Brain, Send, BarChart3, TrendingUp, Zap, Search, Target, Copy, Check, Trash2, Database, Wifi, WifiOff } from 'lucide-react';
 import { PageShell } from '@/components/PageShell';
 import { useWorkspace, useIntegrations } from '@/lib/hooks';
+import { useTheme } from '@/lib/theme';
 
 const SUGGESTIONS = [
   { icon: TrendingUp, text: 'How is my traffic trending this month?', category: 'Analytics' },
@@ -15,8 +16,9 @@ const SUGGESTIONS = [
 
 type Message = { role: 'user' | 'assistant'; content: string; timestamp?: Date };
 
-// Parse markdown into JSX
+// Parse markdown into JSX — uses CSS vars so it inherits theme
 function MarkdownRenderer({ content }: { content: string }) {
+  const { c } = useTheme();
   const lines = content.split('\n');
   const elements: ReactElement[] = [];
   let i = 0;
@@ -26,19 +28,19 @@ function MarkdownRenderer({ content }: { content: string }) {
 
     // H3
     if (line.startsWith('### ')) {
-      elements.push(<h3 key={i} style={{ fontSize: 15, fontWeight: 700, color: '#f4f4f5', margin: '12px 0 4px' }}>{line.slice(4)}</h3>);
+      elements.push(<h3 key={i} style={{ fontSize: 15, fontWeight: 700, color: c.text, margin: '12px 0 4px' }}>{line.slice(4)}</h3>);
     }
     // H2
     else if (line.startsWith('## ')) {
-      elements.push(<h2 key={i} style={{ fontSize: 16, fontWeight: 700, color: '#f4f4f5', margin: '14px 0 6px', borderBottom: '1px solid #3f3f46', paddingBottom: 4 }}>{line.slice(3)}</h2>);
+      elements.push(<h2 key={i} style={{ fontSize: 16, fontWeight: 700, color: c.text, margin: '14px 0 6px', borderBottom: `1px solid ${c.border}`, paddingBottom: 4 }}>{line.slice(3)}</h2>);
     }
     // Bullet list
     else if (line.startsWith('- ') || line.startsWith('* ')) {
       const listItems: ReactElement[] = [];
       while (i < lines.length && (lines[i].startsWith('- ') || lines[i].startsWith('* '))) {
         listItems.push(
-          <li key={i} style={{ color: '#d4d4d8', fontSize: 14, lineHeight: 1.6, marginBottom: 3 }}>
-            {formatInline(lines[i].slice(2))}
+          <li key={i} style={{ color: c.textSecondary, fontSize: 14, lineHeight: 1.6, marginBottom: 3 }}>
+            {formatInline(lines[i].slice(2), c)}
           </li>
         );
         i++;
@@ -51,8 +53,8 @@ function MarkdownRenderer({ content }: { content: string }) {
       const listItems: ReactElement[] = [];
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
         listItems.push(
-          <li key={i} style={{ color: '#d4d4d8', fontSize: 14, lineHeight: 1.6, marginBottom: 3 }}>
-            {formatInline(lines[i].replace(/^\d+\.\s/, ''))}
+          <li key={i} style={{ color: c.textSecondary, fontSize: 14, lineHeight: 1.6, marginBottom: 3 }}>
+            {formatInline(lines[i].replace(/^\d+\.\s/, ''), c)}
           </li>
         );
         i++;
@@ -69,14 +71,14 @@ function MarkdownRenderer({ content }: { content: string }) {
         i++;
       }
       elements.push(
-        <pre key={i} style={{ backgroundColor: '#0f0f10', border: '1px solid #27272a', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#a78bfa', overflowX: 'auto', margin: '8px 0', fontFamily: 'monospace' }}>
+        <pre key={i} style={{ backgroundColor: c.bgPage, border: `1px solid ${c.border}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#a78bfa', overflowX: 'auto', margin: '8px 0', fontFamily: 'monospace' }}>
           {codeLines.join('\n')}
         </pre>
       );
     }
     // Horizontal rule
     else if (line === '---' || line === '***') {
-      elements.push(<hr key={i} style={{ border: 'none', borderTop: '1px solid #27272a', margin: '10px 0' }} />);
+      elements.push(<hr key={i} style={{ border: 'none', borderTop: `1px solid ${c.border}`, margin: '10px 0' }} />);
     }
     // Empty line
     else if (line.trim() === '') {
@@ -84,7 +86,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     }
     // Regular paragraph
     else {
-      elements.push(<p key={i} style={{ color: '#d4d4d8', fontSize: 14, lineHeight: 1.65, margin: '2px 0' }}>{formatInline(line)}</p>);
+      elements.push(<p key={i} style={{ color: c.textSecondary, fontSize: 14, lineHeight: 1.65, margin: '2px 0' }}>{formatInline(line, c)}</p>);
     }
     i++;
   }
@@ -92,17 +94,16 @@ function MarkdownRenderer({ content }: { content: string }) {
   return <div>{elements}</div>;
 }
 
-function formatInline(text: string): ReactElement {
-  // Bold **text**
+function formatInline(text: string, c: any): ReactElement {
   const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
   return (
     <>
       {parts.map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={i} style={{ color: '#f4f4f5', fontWeight: 600 }}>{part.slice(2, -2)}</strong>;
+          return <strong key={i} style={{ color: c.text, fontWeight: 600 }}>{part.slice(2, -2)}</strong>;
         }
         if (part.startsWith('`') && part.endsWith('`')) {
-          return <code key={i} style={{ backgroundColor: '#27272a', color: '#a78bfa', padding: '1px 5px', borderRadius: 4, fontSize: 12, fontFamily: 'monospace' }}>{part.slice(1, -1)}</code>;
+          return <code key={i} style={{ backgroundColor: c.bgTag, color: '#a78bfa', padding: '1px 5px', borderRadius: 4, fontSize: 12, fontFamily: 'monospace' }}>{part.slice(1, -1)}</code>;
         }
         return <span key={i}>{part}</span>;
       })}
@@ -126,6 +127,7 @@ function CopyButton({ text }: { text: string }) {
 export default function AIPage() {
   const { workspace } = useWorkspace();
   const { integrations } = useIntegrations(workspace?.id);
+  const { c } = useTheme();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window === 'undefined') return [];
@@ -212,19 +214,19 @@ export default function AIPage() {
   return (
     <PageShell title="AI Assistant" description="Ask questions about your marketing data in plain English" icon={Brain} badge="GPT-4o-mini">
       {/* Data context bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '10px 16px', borderRadius: 10, backgroundColor: '#18181b', border: '1px solid #27272a' }}>
-        {hasData ? <Wifi size={14} color="#22c55e" /> : <WifiOff size={14} color="#71717a" />}
-        <span style={{ fontSize: 12, color: '#71717a' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '10px 16px', borderRadius: 10, backgroundColor: c.bgCard, border: `1px solid ${c.border}` }}>
+        {hasData ? <Wifi size={14} color="#22c55e" /> : <WifiOff size={14} color={c.textMuted} />}
+        <span style={{ fontSize: 12, color: c.textSecondary }}>
           {hasData
             ? `AI has access to: ${connectedSources.map(s => s.replace('_', ' ').toUpperCase()).join(' · ')}`
             : 'No data connected yet — connect integrations in Settings for data-aware answers'
           }
         </span>
-        <Database size={12} color="#52525b" style={{ marginLeft: 'auto' }} />
-        <span style={{ fontSize: 11, color: '#52525b' }}>Live data context</span>
+        <Database size={12} color={c.textMuted} style={{ marginLeft: 'auto' }} />
+        <span style={{ fontSize: 11, color: c.textMuted }}>Live data context</span>
       </div>
 
-      <div style={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: 16, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 260px)', minHeight: 500 }}>
+      <div style={{ backgroundColor: c.bgCard, border: `1px solid ${c.border}`, borderRadius: 16, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 260px)', minHeight: 500 }}>
         {/* Chat area */}
         <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
           {messages.length === 0 ? (
@@ -233,7 +235,7 @@ export default function AIPage() {
                 <Brain size={28} color="#a78bfa" />
               </div>
               <h3 style={{ fontSize: 20, fontWeight: 700, color: '#f4f4f5', marginBottom: 8 }}>Ask Lumnix AI</h3>
-              <p style={{ fontSize: 14, color: '#71717a', maxWidth: 420, lineHeight: 1.6, marginBottom: 32 }}>
+              <p style={{ fontSize: 14, color: c.textSecondary, maxWidth: 420, lineHeight: 1.6, marginBottom: 32 }}>
                 Your data-aware marketing assistant. Powered by GPT-4o-mini with full context of your connected marketing data.
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, maxWidth: 560, width: '100%' }}>
@@ -245,7 +247,7 @@ export default function AIPage() {
                   >
                     <s.icon size={15} color="#7c3aed" style={{ flexShrink: 0, marginTop: 1 }} />
                     <div>
-                      <div style={{ fontSize: 11, color: '#52525b', marginBottom: 2 }}>{s.category}</div>
+                      <div style={{ fontSize: 11, color: c.textMuted, marginBottom: 2 }}>{s.category}</div>
                       {s.text}
                     </div>
                   </button>
