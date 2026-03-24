@@ -219,10 +219,10 @@ function BrandTab({ workspace, onSaved }: { workspace: any; onSaved?: () => void
 }
 
 const providers = [
-  { id: "gsc", name: "Google Search Console", icon: Search, desc: "Track keyword rankings, clicks, and impressions", color: "#4285F4" },
-  { id: "ga4", name: "Google Analytics 4", icon: BarChart3, desc: "Website traffic, sessions, and conversion data", color: "#E37400" },
-  { id: "google_ads", name: "Google Ads", icon: Target, desc: "Campaign performance, spend, and ROAS tracking", color: "#34A853" },
-  { id: "meta_ads", name: "Meta Ads", icon: Share2, desc: "Facebook & Instagram ad analytics", color: "#1877F2" },
+  { id: "gsc", name: "Google Search Console", icon: Search, logoSlug: "googlesearchconsole", desc: "Track keyword rankings, clicks, and impressions", color: "#4285F4" },
+  { id: "ga4", name: "Google Analytics 4", icon: BarChart3, logoSlug: "googleanalytics", desc: "Website traffic, sessions, and conversion data", color: "#E37400" },
+  { id: "google_ads", name: "Google Ads", icon: Target, logoSlug: "googleads", desc: "Campaign performance, spend, and ROAS tracking", color: "#34A853" },
+  { id: "meta_ads", name: "Meta Ads", icon: Share2, logoSlug: "meta", desc: "Facebook & Instagram ad analytics", color: "#1877F2" },
 ];
 
 const tabs = [
@@ -477,8 +477,8 @@ export default function SettingsPage() {
                 <div key={p.id} style={{ backgroundColor: c.bgCard, border: `1px solid ${connected ? "rgba(16,185,129,0.3)" : c.bgInput}`, borderRadius: "16px", padding: "24px" }}>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: `${p.color}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Icon size={22} color={p.color} />
+                      <div style={{ width: "48px", height: "48px", borderRadius: "14px", backgroundColor: `${p.color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <img src={`https://cdn.simpleicons.org/${p.logoSlug}/${p.color.replace('#', '')}`} width={26} height={26} alt={p.name} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                       </div>
                       <div>
                         <div style={{ fontSize: "15px", fontWeight: 700, color: c.text }}>{p.name}</div>
