@@ -1,5 +1,6 @@
 'use client';
-import { BarChart3, TrendingUp, Target, Brain } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BarChart3, TrendingUp, Target, Brain, Sparkles, AlertTriangle, Lightbulb, Zap, ArrowRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { useWorkspace, useGA4Data, useGSCData, useIntegrations } from '@/lib/hooks';
 import { useWorkspaceCtx } from '@/lib/workspace-context';
@@ -199,6 +200,112 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* AI Insights widget */}
+      <AIInsightsWidget workspaceId={workspace?.id} />
+    </div>
+  );
+}
+
+/* ─── AI Insights Dashboard Widget ─── */
+
+const INSIGHT_DOT_COLORS: Record<string, string> = {
+  win: '#22c55e',
+  warning: '#ef4444',
+  opportunity: '#f59e0b',
+  tip: '#3b82f6',
+};
+
+const INSIGHT_ICONS: Record<string, any> = {
+  win: TrendingUp,
+  warning: AlertTriangle,
+  opportunity: Lightbulb,
+  tip: Zap,
+};
+
+function AIInsightsWidget({ workspaceId }: { workspaceId: string | undefined }) {
+  const { c } = useTheme();
+  const router = useRouter();
+  const [insights, setInsights] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+
+  useEffect(() => {
+    if (!workspaceId) return;
+    setLoading(true);
+    fetch(`/api/insights?workspace_id=${workspaceId}`)
+      .then(r => r.json())
+      .then(data => setInsights(data.insights || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [workspaceId]);
+
+  async function generate() {
+    if (!workspaceId) return;
+    setGenerating(true);
+    try {
+      const res = await fetch('/api/insights/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace_id: workspaceId }),
+      });
+      const data = await res.json();
+      if (data.insights) setInsights(data.insights);
+    } catch {} finally {
+      setGenerating(false);
+    }
+  }
+
+  // Sort by priority (high first)
+  const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
+  const top3 = [...insights].sort((a, b) => (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1)).slice(0, 3);
+
+  if (loading) return null;
+
+  return (
+    <div style={{ backgroundColor: c.bgCard, borderRadius: 14, padding: 24, boxShadow: c.shadow, marginTop: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Sparkles size={16} color="#7C3AED" />
+          <h3 style={{ fontSize: 14, fontWeight: 600, color: c.text }}>AI Insights</h3>
+        </div>
+        <button
+          onClick={() => router.push('/dashboard/ai')}
+          style={{ fontSize: 12, color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}
+        >
+          View all insights <ArrowRight size={12} />
+        </button>
+      </div>
+
+      {top3.length === 0 ? (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0' }}>
+          <p style={{ fontSize: 13, color: c.textSecondary }}>No insights generated yet. Let AI analyze your marketing data.</p>
+          <button
+            onClick={generate}
+            disabled={generating}
+            style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: 'white', fontSize: 13, fontWeight: 600, cursor: generating ? 'not-allowed' : 'pointer', opacity: generating ? 0.7 : 1, whiteSpace: 'nowrap' }}
+          >
+            {generating ? 'Generating...' : 'Generate'}
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {top3.map((insight: any) => {
+            const Icon = INSIGHT_ICONS[insight.type] || Zap;
+            const dotColor = INSIGHT_DOT_COLORS[insight.type] || '#3b82f6';
+            return (
+              <div key={insight.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', borderRadius: 8, backgroundColor: c.bgTag, border: `1px solid ${c.borderSubtle}` }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: dotColor, flexShrink: 0, marginTop: 5 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: c.text, marginBottom: 2 }}>{insight.title}</p>
+                  <p style={{ fontSize: 12, color: c.textSecondary, lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{insight.description}</p>
+                </div>
+                <Icon size={14} color={dotColor} style={{ flexShrink: 0, marginTop: 3 }} />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
