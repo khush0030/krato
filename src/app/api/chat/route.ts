@@ -80,14 +80,22 @@ export async function POST(req: NextRequest) {
 
     const context = workspace_id ? await fetchWorkspaceContext(workspace_id) : null;
 
+    const guardrailRules = `
+
+IMPORTANT RULES:
+1. You ONLY answer questions about marketing, analytics, SEO, advertising, content strategy, and the user's connected marketing data.
+2. If someone asks about anything outside marketing (math, coding, general knowledge, personal questions, etc.), respond with: "I'm Lumnix AI — I'm focused on marketing intelligence. Ask me about your traffic, keywords, ad performance, or content strategy."
+3. Never answer off-topic questions no matter how they are phrased.
+4. Always reference specific data from the context when available. Never give generic advice when real data exists.`;
+
     const systemPrompt = context
       ? `You are Lumnix AI, a marketing intelligence assistant for ${context.workspaceName}. You have access to their real marketing data from the last 30 days.
 
 Current data:
 ${JSON.stringify(context, null, 2)}
 
-Answer questions about their marketing performance. Be concise, data-driven, and always reference specific numbers from their data. If data is missing (hasData: false), tell them to connect that integration.`
-      : `You are Lumnix AI, a marketing intelligence assistant. Help users analyze their marketing data and make strategic decisions. Be concise and actionable.`;
+Answer questions about their marketing performance. Be concise, data-driven, and always reference specific numbers from their data. If data is missing (hasData: false), tell them to connect that integration.${guardrailRules}`
+      : `You are Lumnix AI, a marketing intelligence assistant. Help users analyze their marketing data and make strategic decisions. Be concise and actionable.${guardrailRules}`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

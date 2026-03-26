@@ -98,26 +98,95 @@ Return ONLY a JSON array (no markdown, no code fences) of objects with these fie
 
       const nearPageOne = keywords.filter(k => k.avgPosition && k.avgPosition >= 4 && k.avgPosition <= 10);
 
-      prompt = `You are Lumnix AI, a marketing analytics assistant. Analyze this real marketing data from the last 30 days and generate exactly 6 insights.
+      // Build detailed data sections, skipping anything with 0/missing values
+      const dataSections: string[] = [];
 
-DATA:
-- Connected: ${connected.join(', ')}
-- GA4: ${totalSessions} sessions, ${totalUsers} users${avgBounce ? `, ${avgBounce}% avg bounce rate` : ''}
-- Top traffic sources: ${JSON.stringify(Object.entries(topSources).slice(0, 5))}
-- Top pages: ${JSON.stringify(Object.entries(topPages).slice(0, 5))}
-- GSC: ${keywords.length} keywords tracked
-- Top keywords by clicks: ${JSON.stringify(keywords.slice(0, 10))}
-- Keywords ranking #4-10 (near page 1): ${JSON.stringify(nearPageOne.slice(0, 5))}
+      if (totalSessions > 0) {
+        dataSections.push(`SESSIONS: ${totalSessions.toLocaleString()} total sessions in the last 30 days.`);
+      }
+      if (totalUsers > 0) {
+        dataSections.push(`USERS: ${totalUsers.toLocaleString()} total users in the last 30 days.`);
+      }
+      if (avgBounce) {
+        dataSections.push(`BOUNCE RATE: ${avgBounce}% average bounce rate across all pages.`);
+      }
 
-Generate exactly 6 insights with a good mix of types. Be specific — reference actual numbers, keyword names, and pages from the data.
+      const topSourceEntries = Object.entries(topSources).slice(0, 5);
+      if (topSourceEntries.length > 0) {
+        const sourceLines = topSourceEntries.map(([source, sessions]) => {
+          const pct = totalSessions > 0 ? ((sessions as number) / totalSessions * 100).toFixed(1) : '0';
+          return `  - ${source}: ${(sessions as number).toLocaleString()} sessions (${pct}% of total)`;
+        });
+        dataSections.push(`TOP TRAFFIC SOURCES:\n${sourceLines.join('\n')}`);
+      }
+
+      const topPageEntries = Object.entries(topPages).slice(0, 5);
+      if (topPageEntries.length > 0) {
+        const pageLines = topPageEntries.map(([page, views]) =>
+          `  - ${page}: ${(views as number).toLocaleString()} views`
+        );
+        dataSections.push(`TOP PAGES:\n${pageLines.join('\n')}`);
+      }
+
+      // Bounce rate per page (if available)
+      const pageBounceRows = ga4Rows.filter((r: any) => r.metric_type === 'bounceRate' && r.dimension_name === 'pagePath');
+      if (pageBounceRows.length > 0) {
+        const pageBounces = pageBounceRows
+          .sort((a: any, b: any) => (b.value || 0) - (a.value || 0))
+          .slice(0, 5)
+          .map((r: any) => `  - ${r.dimension_value}: ${r.value}% bounce rate`);
+        dataSections.push(`HIGHEST BOUNCE RATE PAGES:\n${pageBounces.join('\n')}`);
+      }
+
+      const topKw = keywords.slice(0, 5);
+      if (topKw.length > 0) {
+        const kwLines = topKw.map(k =>
+          `  - '${k.query}': ${k.clicks} clicks, ${k.impressions.toLocaleString()} impressions, avg position ${k.avgPosition ?? 'N/A'}`
+        );
+        dataSections.push(`TOP 5 KEYWORDS BY CLICKS:\n${kwLines.join('\n')}`);
+      }
+
+      if (nearPageOne.length > 0) {
+        const npLines = nearPageOne.slice(0, 5).map(k =>
+          `  - '${k.query}': position ${k.avgPosition}, ${k.impressions.toLocaleString()} impressions, ${k.clicks} clicks`
+        );
+        dataSections.push(`KEYWORDS CLOSE TO PAGE 1 (position 4-10):\n${npLines.join('\n')}`);
+      }
+
+      prompt = `You are Lumnix AI, a marketing analytics assistant. Analyze this REAL marketing data from the last 30 days and generate exactly 6 insights.
+
+=== ACTUAL DATA ===
+Connected integrations: ${connected.join(', ')}
+
+${dataSections.join('\n\n')}
+=== END DATA ===
+
+STRICT RULES:
+- Every insight MUST include specific numbers from the data above. If you cannot find a specific number to support an insight, do not include it. Never give generic advice without data to back it up.
+- Reference actual keyword names, page paths, session counts, and percentages from the data.
+- If a data field is 0 or missing above, do NOT make up numbers for it. Skip it entirely.
+- The "metric" field must be a specific number from the data (e.g. "1,847 sessions", "#4 position", "82% bounce rate").
+- The "change" field should be a real delta only if the data supports it (e.g. "+23% vs last month"). If no comparison data exists, set it to null. Do NOT invent deltas.
+
+EXAMPLES OF GOOD INSIGHTS:
+- "Organic search drove 1,847 sessions this month. Your top keyword 'best AI tools' ranks #4 with 234 clicks."
+- "Your /pricing page has a 82% bounce rate vs 45% site average. Add social proof or a comparison table to reduce drop-off."
+- "'AI automation agency' (pos 6.2, 89 impressions), 'n8n workflow builder' (pos 7.1, 67 impressions) are 1-2 spots from page 1. A 300-word content update could push these up."
+
+EXAMPLES OF BAD INSIGHTS (never do this):
+- "Your organic traffic is performing well" (too generic, no numbers)
+- "Consider improving your bounce rate" (no specific page or number)
+- "3 keywords are close to page 1" (doesn't name the keywords or their positions)
+
+Generate exactly 6 insights with a good mix of types (win, warning, opportunity, tip).
 
 Return ONLY a JSON array (no markdown, no code fences) of objects with these fields:
 - type: "win" | "warning" | "opportunity" | "tip"
-- title: string (short, specific, e.g. "Organic traffic up 23%")
-- description: string (2-3 sentences with specific data points)
-- metric: string | null (key number, e.g. "1,476 sessions")
-- change: string | null (e.g. "+23%", "-5%")
-- action: string | null (specific actionable next step)
+- title: string (short, includes a specific number, e.g. "Organic traffic hit 1,847 sessions")
+- description: string (2-3 sentences referencing specific data points — keyword names, page paths, exact numbers)
+- metric: string (a specific number from the data, e.g. "1,847 sessions", "#4 position", "82% bounce rate")
+- change: string | null (real delta if data supports it, e.g. "+23%", otherwise null)
+- action: string | null (specific actionable next step referencing the data)
 - priority: "high" | "medium" | "low"`;
     }
 
