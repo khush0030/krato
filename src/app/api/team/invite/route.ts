@@ -3,8 +3,8 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
-function getResend() {
-  return new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+function getResend(key: string) {
+  return new Resend(key);
 }
 const MAX_FREE_MEMBERS = 2;
 
@@ -70,8 +70,12 @@ export async function POST(req: NextRequest) {
 
     // Try sending email via Resend
     let emailSent = false;
+    const resendKey = process.env.RESEND_API_KEY;
+    if (!resendKey) {
+      emailSent = false;
+    } else {
     try {
-      const { error: emailError } = await getResend().emails.send({
+      const { error: emailError } = await getResend(resendKey).emails.send({
         from: 'Lumnix <onboarding@resend.dev>',
         to: email,
         subject: `${inviterName} invited you to join ${workspace.name} on Lumnix`,
@@ -105,6 +109,7 @@ p { font-size: 15px; color: #94a3b8; line-height: 1.6; margin: 0 0 20px; }
     } catch (e) {
       console.error('Email send failed:', e);
     }
+    }
 
     // Always return success with the invite link (so it works even if email fails)
     return NextResponse.json({
@@ -135,7 +140,7 @@ export async function GET(req: NextRequest) {
 
     const [membersRes, invitesRes] = await Promise.all([
       db.from('workspace_members').select('id, user_id, role, created_at').eq('workspace_id', workspaceId),
-      db.from('team_invites').select('id, email, status, expires_at, created_at').eq('workspace_id', workspaceId).order('created_at', { ascending: false }),
+      db.from('team_invites').select('id, email, role, token, status, expires_at, created_at').eq('workspace_id', workspaceId).order('created_at', { ascending: false }),
     ]);
 
     return NextResponse.json({

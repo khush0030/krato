@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Search, BarChart3, Target, Share2, Check, X, Plug, User, Bell, Shield, CreditCard, RefreshCw, Loader2, Palette, Upload, Users, Mail, Crown, Plus, Trash2, AlertTriangle } from "lucide-react";
+import { Search, BarChart3, Target, Share2, Check, X, Plug, User, Bell, Shield, CreditCard, RefreshCw, Loader2, Palette, Upload, Users, Mail, Crown, Plus, Trash2, AlertTriangle, Copy, Clock, Link } from "lucide-react";
 import { useIntegrations, connectIntegration, syncIntegration } from "@/lib/hooks";
 import { useWorkspaceCtx } from "@/lib/workspace-context";
 import { supabase } from "@/lib/supabase";
@@ -360,10 +360,10 @@ const providers = [
 ];
 
 const tabs = [
-  { id: "integrations", label: "General", icon: Plug },
-  { id: "team", label: "Integrations", icon: Users },
-  { id: "alerts", label: "Team", icon: AlertTriangle },
-  { id: "brand", label: "Alerts", icon: Palette },
+  { id: "general", label: "General", icon: User },
+  { id: "integrations", label: "Integrations", icon: Plug },
+  { id: "team", label: "Team", icon: Users },
+  { id: "alerts", label: "Alerts", icon: Bell },
   { id: "billing", label: "Billing", icon: CreditCard },
 ];
 
@@ -953,7 +953,7 @@ function SlackSection({ workspaceId }: { workspaceId: string | undefined }) {
 
 export default function SettingsPage() {
   const { toggle } = useTheme();
-  const [activeTab, setActiveTab] = useState("integrations");
+  const [activeTab, setActiveTab] = useState("general");
   const { workspace, loading: wsLoading, refetch: refetchWorkspace, setWorkspace } = useWorkspaceCtx();
   const { integrations, loading: intLoading, refetch } = useIntegrations(workspace?.id);
   const [syncing, setSyncing] = useState<string | null>(null);
@@ -962,7 +962,8 @@ export default function SettingsPage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
   const [inviting, setInviting] = useState(false);
-  const [inviteMsg, setInviteMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [inviteMsg, setInviteMsg] = useState<{ text: string; ok: boolean; inviteUrl?: string } | null>(null);
+  const [copied, setCopied] = useState(false);
   const [teamData, setTeamData] = useState<{ members: any[]; invites: any[]; canInviteMore: boolean; slotsUsed: number; maxSlots: number } | null>(null);
 
   useEffect(() => {
@@ -992,13 +993,18 @@ export default function SettingsPage() {
       body: JSON.stringify({ email: inviteEmail, workspace_id: workspace.id, role: inviteRole }),
     });
     const data = await res.json();
-    setInviteMsg({ text: data.success ? `Invite sent to ${inviteEmail}` : data.error, ok: !!data.success });
     if (data.success) {
+      const savedEmail = inviteEmail;
       setInviteEmail("");
-      setTeamData(prev => prev ? { ...prev, slotsUsed: prev.slotsUsed + 1, canInviteMore: prev.slotsUsed + 1 < prev.maxSlots, invites: [...prev.invites, { email: inviteEmail, status: 'pending', created_at: new Date().toISOString(), inviteUrl: data.inviteUrl }] } : prev);
-      if (!data.emailSent && data.inviteUrl) {
-        setInviteMsg({ text: `Email couldn't send — copy this link and share it: ${data.inviteUrl}`, ok: true });
+      setCopied(false);
+      setTeamData(prev => prev ? { ...prev, slotsUsed: prev.slotsUsed + 1, canInviteMore: prev.slotsUsed + 1 < prev.maxSlots, invites: [...prev.invites, { email: savedEmail, role: inviteRole, status: 'pending', created_at: new Date().toISOString(), expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), token: data.inviteUrl?.split('invite=')[1] }] } : prev);
+      if (data.emailSent) {
+        setInviteMsg({ text: `Invite sent to ${savedEmail}`, ok: true });
+      } else {
+        setInviteMsg({ text: `Email couldn't be sent — share this link manually:`, ok: true, inviteUrl: data.inviteUrl });
       }
+    } else {
+      setInviteMsg({ text: data.error, ok: false });
     }
     setInviting(false);
   }
@@ -1094,8 +1100,8 @@ export default function SettingsPage() {
         ))}
       </div>
 
-      {/* ─── General Tab (was "integrations") ─── */}
-      {activeTab === "integrations" && (
+      {/* ─── General Tab ─── */}
+      {activeTab === "general" && (
         <div>
           {/* Profile section */}
           <ProfileTab />
@@ -1110,8 +1116,8 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {/* ─── Integrations Tab (was "team") ─── */}
-      {activeTab === "team" && (
+      {/* ─── Integrations Tab ─── */}
+      {activeTab === "integrations" && (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
             <p style={{ fontSize: 14, color: T.textSecondary, margin: 0 }}>
@@ -1207,8 +1213,8 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {/* ─── Team Tab (was "alerts") ─── */}
-      {activeTab === "alerts" && (
+      {/* ─── Team Tab ─── */}
+      {activeTab === "team" && (
         <div style={{ maxWidth: 560 }}>
           {/* Slots indicator */}
           <div style={{
@@ -1284,10 +1290,41 @@ export default function SettingsPage() {
                 backgroundColor: inviteMsg.ok ? T.successSubtle : T.dangerSubtle,
                 border: `1px solid ${inviteMsg.ok ? T.successBorder : T.dangerBorder}`,
                 color: inviteMsg.ok ? T.success : '#f87171',
-                fontSize: 13, display: 'flex', alignItems: 'center', gap: 6,
+                fontSize: 13,
               }}>
-                {inviteMsg.ok ? <Check size={13} /> : <X size={13} />}
-                {inviteMsg.text}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {inviteMsg.ok ? <Check size={13} /> : <X size={13} />}
+                  {inviteMsg.text}
+                </div>
+                {inviteMsg.inviteUrl && (
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                    <input
+                      readOnly
+                      value={inviteMsg.inviteUrl}
+                      style={{
+                        ...inputBaseStyle,
+                        flex: 1,
+                        fontSize: 12,
+                        fontFamily: T.mono,
+                        color: T.textSecondary,
+                      }}
+                      onClick={e => (e.target as HTMLInputElement).select()}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => { navigator.clipboard.writeText(inviteMsg.inviteUrl!); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                      style={{
+                        ...ghostBtnStyle,
+                        padding: '8px 14px', fontSize: 12, whiteSpace: 'nowrap',
+                        color: copied ? T.success : T.textSecondary,
+                        borderColor: copied ? T.successBorder : T.borderStrong,
+                      }}
+                    >
+                      {copied ? <Check size={13} /> : <Copy size={13} />}
+                      {copied ? 'Copied!' : 'Copy link'}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1341,17 +1378,20 @@ export default function SettingsPage() {
           )}
 
           {/* Pending invites */}
-          {teamData?.invites && teamData.invites.length > 0 && (
+          {teamData?.invites && teamData.invites.filter((inv: any) => inv.status === 'pending').length > 0 && (
             <div style={{ ...cardStyle, padding: '20px 24px' }}>
               <h3 style={{ fontSize: 15, fontWeight: 700, color: T.text, marginBottom: 16 }}>Pending Invites</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {teamData.invites.map((inv: any) => {
+                {teamData.invites.filter((inv: any) => inv.status === 'pending').map((inv: any) => {
                   const roleColors: Record<string, { bg: string; color: string }> = {
                     admin: { bg: T.accentSubtle, color: T.accent },
                     member: { bg: 'rgba(59,130,246,0.08)', color: '#3b82f6' },
                     viewer: { bg: 'rgba(85,85,85,0.08)', color: T.textMuted },
                   };
                   const rc = roleColors[inv.role] || roleColors.member;
+                  const expiresAt = inv.expires_at ? new Date(inv.expires_at) : null;
+                  const daysLeft = expiresAt ? Math.max(0, Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null;
+                  const invUrl = inv.token ? `${window.location.origin}/auth/signup?invite=${inv.token}` : null;
                   return (
                     <div key={inv.id || inv.email} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -1369,24 +1409,35 @@ export default function SettingsPage() {
                         </div>
                         <div>
                           <div style={{ fontSize: 14, fontWeight: 500, color: T.text }}>{inv.email}</div>
-                          <div style={{ fontSize: 11, color: T.textMuted }}>Invited {new Date(inv.created_at).toLocaleDateString()}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                            <span style={{
+                              fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 6,
+                              backgroundColor: rc.bg, color: rc.color, textTransform: 'capitalize',
+                            }}>
+                              {inv.role || 'member'}
+                            </span>
+                            {daysLeft !== null && (
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: daysLeft <= 1 ? T.danger : T.textMuted }}>
+                                <Clock size={10} />
+                                Expires in {daysLeft} day{daysLeft !== 1 ? 's' : ''}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{
-                          fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6,
-                          backgroundColor: rc.bg, color: rc.color, textTransform: 'capitalize',
-                        }}>
-                          {inv.role || 'member'}
-                        </span>
-                        <span style={{
-                          fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6,
-                          backgroundColor: inv.status === 'accepted' ? T.successSubtle : T.warningSubtle,
-                          color: inv.status === 'accepted' ? T.success : T.warning,
-                        }}>
-                          {inv.status === 'accepted' ? 'Joined' : 'Pending'}
-                        </span>
-                      </div>
+                      {invUrl && (
+                        <button
+                          type="button"
+                          onClick={() => { navigator.clipboard.writeText(invUrl); }}
+                          style={{
+                            ...ghostBtnStyle,
+                            padding: '6px 12px', fontSize: 12,
+                          }}
+                        >
+                          <Link size={12} />
+                          Copy link
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -1396,14 +1447,14 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {/* ─── Alerts Tab (was "brand") ─── */}
-      {activeTab === "brand" && workspace?.id && <AlertsTab workspaceId={workspace.id} />}
+      {/* ─── Alerts Tab ─── */}
+      {activeTab === "alerts" && workspace?.id && <AlertsTab workspaceId={workspace.id} />}
 
       {/* ─── Billing Tab ─── */}
       {activeTab === "billing" && <BillingTab />}
 
       {/* Fallback for any unmapped tab */}
-      {activeTab !== "integrations" && activeTab !== "team" && activeTab !== "alerts" && activeTab !== "brand" && activeTab !== "billing" && (
+      {activeTab !== "general" && activeTab !== "integrations" && activeTab !== "team" && activeTab !== "alerts" && activeTab !== "billing" && (
         <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: 12, border: `1px dashed ${T.border}` }}>
           <p style={{ fontSize: 15, color: T.textMuted }}>Coming soon &mdash; {activeTab} settings</p>
         </div>
