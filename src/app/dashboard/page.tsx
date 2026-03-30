@@ -1,38 +1,43 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Target, Brain, Sparkles, AlertTriangle, Lightbulb, Zap, ArrowRight, Bell, CheckCircle } from 'lucide-react';
+import { BarChart3, TrendingUp, Target, Brain, Sparkles, AlertTriangle, Lightbulb, Zap, ArrowRight, Bell, CheckCircle, FileText, Users, Search } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { useWorkspace, useGA4Data, useGSCData, useIntegrations } from '@/lib/hooks';
 import { useWorkspaceCtx } from '@/lib/workspace-context';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/lib/theme';
 
-// Platform logos via SimpleIcons CDN
 const PlatformLogo = ({ name, size = 18 }: { name: string; size?: number }) => (
   <img src={`https://cdn.simpleicons.org/${name}`} width={size} height={size} alt={name} style={{ flexShrink: 0 }} />
 );
 
-function StatCard({ label, value, sub, color, icon: Icon, loading, platformLogo }: {
-  label: string; value: string; sub?: string; color: string; icon: any; loading?: boolean; platformLogo?: string;
+function StatCard({ label, value, sub, color, icon: Icon, loading, platformLogo, change }: {
+  label: string; value: string; sub?: string; color: string; icon: any; loading?: boolean; platformLogo?: string; change?: string;
 }) {
-  const { c } = useTheme();
   return (
-    <div style={{ backgroundColor: c.bgCard, borderRadius: 14, padding: 24, boxShadow: c.shadow }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: `${color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon size={16} color={color} />
-        </div>
-        {platformLogo && <PlatformLogo name={platformLogo} size={15} />}
+    <div style={{ backgroundColor: '#111111', border: '1px solid #222222', borderRadius: 12, padding: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: '#888888', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>
+        {platformLogo && <PlatformLogo name={platformLogo} size={14} />}
       </div>
       {loading ? (
-        <div style={{ height: 36, backgroundColor: c.bgTag, borderRadius: 6, marginBottom: 8, width: '55%', animation: 'pulse 1.5s ease-in-out infinite' }} />
+        <div style={{ height: 32, backgroundColor: '#1A1A1A', borderRadius: 6, marginBottom: 8, width: '55%' }} className="animate-pulse" />
       ) : (
-        <div style={{ fontSize: 32, fontWeight: 600, color: c.text, letterSpacing: '-0.03em', marginBottom: 4, lineHeight: 1.1 }}>
-          {value}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+          <div style={{ fontSize: 28, fontWeight: 500, color: '#FAFAFA', letterSpacing: '-0.03em', lineHeight: 1, fontFamily: 'var(--font-mono)' }}>
+            {value}
+          </div>
+          {change && (
+            <span style={{
+              fontSize: 12, fontWeight: 600,
+              color: change.startsWith('+') ? '#10B981' : change.startsWith('-') ? '#EF4444' : '#888888',
+            }}>
+              {change}
+            </span>
+          )}
         </div>
       )}
-      <div style={{ fontSize: 11, fontWeight: 500, color: c.textSecondary, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</div>
-      {sub && <div style={{ fontSize: 12, color: c.textMuted, marginTop: 3 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 12, color: '#555555', marginTop: 6 }}>{sub}</div>}
     </div>
   );
 }
@@ -73,74 +78,77 @@ export default function DashboardPage() {
   return (
     <div style={{ fontFamily: 'var(--font-body)' }}>
 
-      {/* Welcome */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 600, color: c.text, letterSpacing: '-0.02em', lineHeight: 1.3 }}>
-          Welcome back{workspace?.name ? `, ${workspace.name.split(' ')[0]}` : ''} 👋
-        </h1>
-        <p style={{ color: c.textSecondary, fontSize: 13, marginTop: 4, lineHeight: 1.6 }}>
-          {connectedProviders.length > 0
-            ? `${connectedProviders.length} data source${connectedProviders.length > 1 ? 's' : ''} connected · Last 30 days`
-            : 'Connect your first integration to see live data'}
-        </p>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: '#FAFAFA', letterSpacing: '-0.02em', lineHeight: 1.3 }}>
+            Dashboard
+          </h1>
+          <p style={{ color: '#555555', fontSize: 13, marginTop: 4 }}>
+            {connectedProviders.length > 0
+              ? `${connectedProviders.length} source${connectedProviders.length > 1 ? 's' : ''} connected · Last 30 days`
+              : 'Connect your first integration to see live data'}
+          </p>
+        </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="kpi-grid" style={{ marginBottom: 24 }}>
-        <StatCard label="Organic Sessions" value={hasGA4 ? totalSessions.toLocaleString() : '—'} sub={hasGA4 ? `${totalUsers.toLocaleString()} users` : 'Connect GA4'} color="#7C3AED" icon={BarChart3} loading={loading} platformLogo="googleanalytics" />
-        <StatCard label="Organic Clicks" value={hasGSC ? totalClicks.toLocaleString() : '—'} sub={hasGSC ? `${totalImpressions.toLocaleString()} impressions` : 'Connect GSC'} color="#0891B2" icon={TrendingUp} loading={loading} platformLogo="googlesearchconsole" />
+      <div className="kpi-grid" style={{ marginBottom: 20 }}>
+        <StatCard label="Sessions" value={hasGA4 ? totalSessions.toLocaleString() : '—'} sub={hasGA4 ? `${totalUsers.toLocaleString()} users` : 'Connect GA4'} color="#6366F1" icon={BarChart3} loading={loading} platformLogo="googleanalytics" />
+        <StatCard label="Organic Clicks" value={hasGSC ? totalClicks.toLocaleString() : '—'} sub={hasGSC ? `${totalImpressions.toLocaleString()} impressions` : 'Connect GSC'} color="#6366F1" icon={TrendingUp} loading={loading} platformLogo="googlesearchconsole" />
         <StatCard label="Avg Position" value={hasGSC ? `#${avgPosition}` : '—'} sub={hasGSC ? `${gscKeywords.length} keywords tracked` : 'Connect GSC'} color="#F59E0B" icon={Target} loading={loading} />
-        <StatCard label="Quick Wins" value={hasGSC ? `${quickWins.length}` : '—'} sub={hasGSC ? 'Page 1 edge keywords' : 'Connect GSC'} color="#10B981" icon={Brain} loading={loading} />
+        <StatCard label="Impressions" value={hasGSC ? totalImpressions.toLocaleString() : '—'} sub={hasGSC ? 'Search impressions' : 'Connect GSC'} color="#10B981" icon={BarChart3} loading={loading} />
       </div>
 
-      {/* Charts row */}
-      <div className="two-col" style={{ marginBottom: 24 }}>
-        {/* Clicks chart */}
-        <div style={{ backgroundColor: c.bgCard, borderRadius: 14, padding: 24, boxShadow: c.shadow }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
-            <PlatformLogo name="googlesearchconsole" size={15} />
+      {/* Anomalies — full width */}
+      <AnomaliesWidget workspaceId={workspace?.id} />
+
+      {/* Traffic chart + Top pages */}
+      <div className="two-col" style={{ marginBottom: 20, marginTop: 20 }}>
+        {/* Traffic chart */}
+        <div style={{ backgroundColor: '#111111', border: '1px solid #222222', borderRadius: 12, padding: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div>
-              <p style={{ fontSize: 11, fontWeight: 500, color: c.textSecondary, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Organic Traffic</p>
-              <p style={{ fontSize: 12, color: c.textMuted, marginTop: 1 }}>Daily clicks — last 14 days</p>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>Traffic over time</h3>
+              <p style={{ fontSize: 12, color: '#555555', marginTop: 2 }}>Daily clicks — last 14 days</p>
             </div>
+            {hasGSC && <PlatformLogo name="googlesearchconsole" size={14} />}
           </div>
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={180}>
+            <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="gDash" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#7C3AED" stopOpacity={0.2} />
-                    <stop offset="100%" stopColor="#7C3AED" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#6366F1" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#6366F1" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="day" stroke="transparent" tick={{ fill: c.textMuted, fontSize: 10 }} axisLine={false} tickLine={false} interval={2} />
-                <YAxis stroke="transparent" tick={{ fill: c.textMuted, fontSize: 10 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ backgroundColor: c.bgCard, border: `1px solid ${c.border}`, borderRadius: 8, color: c.text, fontSize: 12, boxShadow: c.shadow }} />
-                <Area type="monotone" dataKey="clicks" stroke="#7C3AED" fill="url(#gDash)" strokeWidth={2} dot={false} />
+                <XAxis dataKey="day" stroke="transparent" tick={{ fill: '#555555', fontSize: 10 }} axisLine={false} tickLine={false} interval={2} />
+                <YAxis stroke="transparent" tick={{ fill: '#555555', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1A1A1A', border: '1px solid #222222', borderRadius: 8, color: '#FAFAFA', fontSize: 12 }}
+                  itemStyle={{ color: '#FAFAFA' }}
+                  labelStyle={{ color: '#888888' }}
+                />
+                <Area type="monotone" dataKey="clicks" stroke="#6366F1" fill="url(#gDash)" strokeWidth={2} dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div style={{ height: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <p style={{ fontSize: 14, color: c.textMuted }}>No traffic data yet</p>
-              <button onClick={() => router.push('/dashboard/settings')} style={{ fontSize: 13, color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
+            <div style={{ height: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <p style={{ fontSize: 14, color: '#555555' }}>No traffic data yet</p>
+              <button onClick={() => router.push('/dashboard/settings')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
                 Connect Google Search Console →
               </button>
             </div>
           )}
         </div>
 
-        {/* Top keywords */}
-        <div style={{ backgroundColor: c.bgCard, borderRadius: 14, padding: 24, boxShadow: c.shadow }}>
+        {/* Top pages / keywords table */}
+        <div style={{ backgroundColor: '#111111', border: '1px solid #222222', borderRadius: 12, padding: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <PlatformLogo name="googlesearchconsole" size={15} />
-              <div>
-                <p style={{ fontSize: 11, fontWeight: 500, color: c.textSecondary, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Top Keywords</p>
-                <p style={{ fontSize: 12, color: c.textMuted, marginTop: 1 }}>By organic clicks</p>
-              </div>
-            </div>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>Top keywords</h3>
             {hasGSC && (
-              <button onClick={() => router.push('/dashboard/seo')} style={{ fontSize: 12, color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
+              <button onClick={() => router.push('/dashboard/seo')} style={{ fontSize: 12, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
                 View all →
               </button>
             )}
@@ -148,19 +156,23 @@ export default function DashboardPage() {
           {topKeywords.length > 0 ? (
             <div>
               {topKeywords.map((kw: any, i: number) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < topKeywords.length - 1 ? `1px solid ${c.borderSubtle}` : 'none' }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: kw.position <= 3 ? '#10B981' : kw.position <= 10 ? '#F59E0B' : c.textMuted, width: 28, flexShrink: 0 }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < topKeywords.length - 1 ? '1px solid #1A1A1A' : 'none' }}>
+                  <span style={{
+                    fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-mono)',
+                    color: kw.position <= 3 ? '#10B981' : kw.position <= 10 ? '#F59E0B' : '#555555',
+                    width: 32, flexShrink: 0,
+                  }}>
                     #{Math.round(kw.position)}
                   </span>
-                  <span style={{ flex: 1, fontSize: 13, color: c.textSecondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{kw.query}</span>
-                  <span style={{ fontSize: 12, color: '#7C3AED', fontWeight: 600, flexShrink: 0 }}>{kw.clicks}</span>
+                  <span style={{ flex: 1, fontSize: 13, color: '#888888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{kw.query}</span>
+                  <span style={{ fontSize: 12, color: '#6366F1', fontWeight: 600, fontFamily: 'var(--font-mono)', flexShrink: 0 }}>{kw.clicks}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <div style={{ height: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <p style={{ fontSize: 14, color: c.textMuted }}>No keyword data yet</p>
-              <button onClick={() => router.push('/dashboard/settings')} style={{ fontSize: 13, color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
+            <div style={{ height: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <p style={{ fontSize: 14, color: '#555555' }}>No keyword data yet</p>
+              <button onClick={() => router.push('/dashboard/settings')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
                 Sync Search Console →
               </button>
             </div>
@@ -168,43 +180,83 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Bottom row: Keywords table + Quick actions */}
+      <div className="two-col" style={{ marginBottom: 20 }}>
+        {/* Quick wins / keyword table */}
+        {quickWins.length > 0 ? (
+          <div style={{ backgroundColor: '#111111', border: '1px solid #222222', borderRadius: 12, padding: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <Brain size={16} color="#6366F1" />
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>Quick wins</h3>
+              <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 100, backgroundColor: 'rgba(245,158,11,0.1)', color: '#F59E0B', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Action needed</span>
+            </div>
+            <p style={{ fontSize: 13, color: '#555555', marginBottom: 14, lineHeight: 1.6 }}>Keywords ranking 4-10 with low CTR — optimize title tags to push to page 1.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {quickWins.map((kw: any, i: number) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, backgroundColor: '#1A1A1A', border: '1px solid #222222' }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#F59E0B', fontFamily: 'var(--font-mono)', width: 32 }}>#{Math.round(kw.position)}</span>
+                  <span style={{ flex: 1, fontSize: 13, color: '#888888' }}>{kw.query}</span>
+                  <span style={{ fontSize: 12, color: '#555555' }}>{kw.impressions?.toLocaleString()} impr.</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#EF4444', fontFamily: 'var(--font-mono)' }}>{kw.ctr?.toFixed(1)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div style={{ backgroundColor: '#111111', border: '1px solid #222222', borderRadius: 12, padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <p style={{ fontSize: 13, color: '#555555' }}>Quick win opportunities will appear here when data is available.</p>
+          </div>
+        )}
+
+        {/* Quick actions */}
+        <div style={{ backgroundColor: '#111111', border: '1px solid #222222', borderRadius: 12, padding: 24 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA', marginBottom: 16 }}>Quick actions</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {[
+              { label: 'Run keyword gap analysis', icon: Search, href: '/dashboard/competitors' },
+              { label: 'Generate report', icon: FileText, href: '/dashboard/reports' },
+              { label: 'Invite team member', icon: Users, href: '/dashboard/settings' },
+            ].map(action => (
+              <button
+                key={action.label}
+                onClick={() => router.push(action.href)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '12px 14px', borderRadius: 8,
+                  border: '1px solid #222222', backgroundColor: 'transparent',
+                  color: '#FAFAFA', fontSize: 13, fontWeight: 500,
+                  cursor: 'pointer', textAlign: 'left', width: '100%',
+                  transition: 'background-color 0.15s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#1A1A1A')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <action.icon size={15} color="#6366F1" />
+                <span style={{ flex: 1 }}>{action.label}</span>
+                <ArrowRight size={14} color="#555555" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Connect CTA */}
       {connectedProviders.length === 0 && !loading && (
-        <div style={{ padding: 20, borderRadius: 14, background: '#F5F3FF', boxShadow: '0 0 0 1px rgba(124,58,237,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 24 }}>
+        <div style={{ padding: 24, borderRadius: 12, border: '1px solid #222222', backgroundColor: '#111111', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 20 }}>
           <div>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: '#0F172A', marginBottom: 3 }}>Connect your first data source</h3>
-            <p style={{ fontSize: 13, color: '#64748B' }}>Link GSC, GA4, Google Ads, or Meta Ads to populate your dashboard with real data.</p>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA', marginBottom: 4 }}>Connect your first data source</h3>
+            <p style={{ fontSize: 13, color: '#555555' }}>Link GSC, GA4, Google Ads, or Meta Ads to populate your dashboard with real data.</p>
           </div>
-          <button onClick={() => router.push('/dashboard/settings')} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', backgroundColor: '#7C3AED', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(124,58,237,0.3)' }}>
+          <button
+            onClick={() => router.push('/dashboard/settings')}
+            style={{ padding: '10px 20px', borderRadius: 8, border: 'none', backgroundColor: '#6366F1', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background-color 0.2s' }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#4F46E5')}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#6366F1')}
+          >
             Connect now →
           </button>
         </div>
       )}
-
-      {/* Quick wins */}
-      {quickWins.length > 0 && (
-        <div style={{ backgroundColor: c.bgCard, borderRadius: 14, padding: 24, boxShadow: c.shadow }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            <Brain size={16} color="#7C3AED" />
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: c.text }}>Quick Wins</h3>
-            <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, backgroundColor: '#FEF3C7', color: '#92400E', fontWeight: 600 }}>ACTION NEEDED</span>
-          </div>
-          <p style={{ fontSize: 13, color: c.textSecondary, marginBottom: 14, lineHeight: 1.6 }}>These keywords rank positions 4–10 with low CTR. Improving title tags could push them to page 1.</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {quickWins.map((kw: any, i: number) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, backgroundColor: c.bgTag, border: `1px solid ${c.borderSubtle}` }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B', width: 30 }}>#{Math.round(kw.position)}</span>
-                <span style={{ flex: 1, fontSize: 13, color: c.textSecondary }}>{kw.query}</span>
-                <span style={{ fontSize: 12, color: c.textMuted }}>{kw.impressions?.toLocaleString()} impr.</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#EF4444' }}>{kw.ctr?.toFixed(1)}% CTR</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Anomalies widget */}
-      <AnomaliesWidget workspaceId={workspace?.id} />
 
       {/* AI Insights widget */}
       <AIInsightsWidget workspaceId={workspace?.id} />
@@ -215,21 +267,15 @@ export default function DashboardPage() {
 /* ─── Anomalies Dashboard Widget ─── */
 
 const SEVERITY_COLORS: Record<string, string> = {
-  high: '#ef4444',
-  medium: '#f59e0b',
-  low: '#eab308',
-};
-
-const SEVERITY_BG: Record<string, string> = {
-  high: 'rgba(239,68,68,0.12)',
-  medium: 'rgba(245,158,11,0.12)',
-  low: 'rgba(234,179,8,0.12)',
+  high: '#EF4444',
+  medium: '#F59E0B',
+  low: '#888888',
 };
 
 function AnomaliesWidget({ workspaceId }: { workspaceId: string | undefined }) {
-  const { c } = useTheme();
   const [anomalies, setAnomalies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     if (!workspaceId) return;
@@ -249,68 +295,57 @@ function AnomaliesWidget({ workspaceId }: { workspaceId: string | undefined }) {
   if (loading) return null;
 
   const unread = anomalies.filter(a => !a.is_read);
+  const display = anomalies.slice(0, 3);
 
   return (
-    <div style={{ backgroundColor: c.bgCard, borderRadius: 14, padding: 24, boxShadow: c.shadow, marginTop: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Bell size={16} color="#ef4444" />
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: c.text }}>Anomalies</h3>
+    <div style={{ backgroundColor: '#111111', border: '1px solid #222222', borderRadius: 12, padding: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Bell size={16} color="#EF4444" />
+          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>AI Anomalies</h3>
           {unread.length > 0 && (
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, backgroundColor: 'rgba(239,68,68,0.15)', color: '#ef4444', fontWeight: 700 }}>
+            <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 100, backgroundColor: 'rgba(239,68,68,0.1)', color: '#EF4444', fontWeight: 600 }}>
               {unread.length} new
             </span>
           )}
         </div>
+        <button
+          onClick={() => router.push('/dashboard/alerts')}
+          style={{ fontSize: 12, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}
+        >
+          View all →
+        </button>
       </div>
 
-      {anomalies.length === 0 ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '16px 0' }}>
-          <CheckCircle size={16} color="#22c55e" />
-          <p style={{ fontSize: 13, color: c.textSecondary }}>No anomalies detected — everything looks healthy</p>
+      {display.length === 0 ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0' }}>
+          <CheckCircle size={16} color="#10B981" />
+          <p style={{ fontSize: 13, color: '#888888' }}>No anomalies detected — everything looks healthy</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {anomalies.slice(0, 5).map((anomaly: any) => {
-            const severityColor = SEVERITY_COLORS[anomaly.severity] || '#eab308';
-            const severityBg = SEVERITY_BG[anomaly.severity] || 'rgba(234,179,8,0.12)';
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {display.map((anomaly: any) => {
+            const color = SEVERITY_COLORS[anomaly.severity] || '#888888';
             return (
               <div
                 key={anomaly.id}
                 onClick={() => !anomaly.is_read && markAsRead(anomaly.id)}
                 style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8,
-                  backgroundColor: anomaly.is_read ? c.bgTag : severityBg,
-                  border: `1px solid ${anomaly.is_read ? c.borderSubtle : severityColor}30`,
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '12px 14px', borderRadius: 8,
+                  backgroundColor: '#1A1A1A', border: '1px solid #222222',
                   cursor: anomaly.is_read ? 'default' : 'pointer',
-                  opacity: anomaly.is_read ? 0.7 : 1,
+                  opacity: anomaly.is_read ? 0.6 : 1,
+                  transition: 'opacity 0.2s',
                 }}
               >
-                <span style={{
-                  fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '3px 8px', borderRadius: 6,
-                  backgroundColor: severityBg, color: severityColor, flexShrink: 0, marginTop: 2,
-                }}>
-                  {anomaly.severity}
-                </span>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: c.text, marginBottom: 3 }}>{anomaly.title}</p>
-                  <p style={{ fontSize: 12, color: c.textSecondary, lineHeight: 1.5 }}>{anomaly.description}</p>
-                  {anomaly.affected_pages && anomaly.affected_pages.length > 0 && (
-                    <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                      {anomaly.affected_pages.slice(0, 3).map((page: string, i: number) => (
-                        <span key={i} style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, backgroundColor: c.bgTag, color: c.textMuted, border: `1px solid ${c.borderSubtle}` }}>
-                          {page.length > 40 ? page.slice(0, 40) + '...' : page}
-                        </span>
-                      ))}
-                      {anomaly.affected_pages.length > 3 && (
-                        <span style={{ fontSize: 11, color: c.textMuted }}>+{anomaly.affected_pages.length - 3} more</span>
-                      )}
-                    </div>
-                  )}
+                  <p style={{ fontSize: 13, fontWeight: 500, color: '#FAFAFA' }}>{anomaly.title}</p>
                 </div>
-                {!anomaly.is_read && (
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: severityColor, flexShrink: 0, marginTop: 5 }} />
-                )}
+                <span style={{ fontSize: 11, color: '#555555', flexShrink: 0 }}>
+                  {anomaly.created_at ? new Date(anomaly.created_at).toLocaleDateString() : ''}
+                </span>
               </div>
             );
           })}
@@ -323,10 +358,10 @@ function AnomaliesWidget({ workspaceId }: { workspaceId: string | undefined }) {
 /* ─── AI Insights Dashboard Widget ─── */
 
 const INSIGHT_DOT_COLORS: Record<string, string> = {
-  win: '#22c55e',
-  warning: '#ef4444',
-  opportunity: '#f59e0b',
-  tip: '#3b82f6',
+  win: '#10B981',
+  warning: '#EF4444',
+  opportunity: '#F59E0B',
+  tip: '#6366F1',
 };
 
 const INSIGHT_ICONS: Record<string, any> = {
@@ -337,7 +372,6 @@ const INSIGHT_ICONS: Record<string, any> = {
 };
 
 function AIInsightsWidget({ workspaceId }: { workspaceId: string | undefined }) {
-  const { c } = useTheme();
   const router = useRouter();
   const [insights, setInsights] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -369,51 +403,57 @@ function AIInsightsWidget({ workspaceId }: { workspaceId: string | undefined }) 
     }
   }
 
-  // Sort by priority (high first)
   const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
   const top3 = [...insights].sort((a, b) => (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1)).slice(0, 3);
 
   if (loading) return null;
 
   return (
-    <div style={{ backgroundColor: c.bgCard, borderRadius: 14, padding: 24, boxShadow: c.shadow, marginTop: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Sparkles size={16} color="#7C3AED" />
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: c.text }}>AI Insights</h3>
+    <div style={{ backgroundColor: '#111111', border: '1px solid #222222', borderRadius: 12, padding: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Sparkles size={16} color="#6366F1" />
+          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>AI Insights</h3>
         </div>
         <button
           onClick={() => router.push('/dashboard/ai')}
-          style={{ fontSize: 12, color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}
+          style={{ fontSize: 12, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}
         >
-          View all insights <ArrowRight size={12} />
+          View all <ArrowRight size={12} />
         </button>
       </div>
 
       {top3.length === 0 ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0' }}>
-          <p style={{ fontSize: 13, color: c.textSecondary }}>No insights generated yet. Let AI analyze your marketing data.</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0' }}>
+          <p style={{ fontSize: 13, color: '#555555' }}>No insights generated yet. Let AI analyze your data.</p>
           <button
             onClick={generate}
             disabled={generating}
-            style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: 'white', fontSize: 13, fontWeight: 600, cursor: generating ? 'not-allowed' : 'pointer', opacity: generating ? 0.7 : 1, whiteSpace: 'nowrap' }}
+            style={{
+              padding: '8px 16px', borderRadius: 8, border: 'none',
+              backgroundColor: '#6366F1', color: 'white',
+              fontSize: 13, fontWeight: 600,
+              cursor: generating ? 'not-allowed' : 'pointer',
+              opacity: generating ? 0.7 : 1, whiteSpace: 'nowrap',
+              transition: 'background-color 0.2s',
+            }}
           >
             {generating ? 'Generating...' : 'Generate'}
           </button>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {top3.map((insight: any) => {
             const Icon = INSIGHT_ICONS[insight.type] || Zap;
-            const dotColor = INSIGHT_DOT_COLORS[insight.type] || '#3b82f6';
+            const dotColor = INSIGHT_DOT_COLORS[insight.type] || '#6366F1';
             return (
-              <div key={insight.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', borderRadius: 8, backgroundColor: c.bgTag, border: `1px solid ${c.borderSubtle}` }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: dotColor, flexShrink: 0, marginTop: 5 }} />
+              <div key={insight.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 8, backgroundColor: '#1A1A1A', border: '1px solid #222222' }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: dotColor, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: c.text, marginBottom: 2 }}>{insight.title}</p>
-                  <p style={{ fontSize: 12, color: c.textSecondary, lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{insight.description}</p>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: '#FAFAFA', marginBottom: 2 }}>{insight.title}</p>
+                  <p style={{ fontSize: 12, color: '#555555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{insight.description}</p>
                 </div>
-                <Icon size={14} color={dotColor} style={{ flexShrink: 0, marginTop: 3 }} />
+                <Icon size={14} color={dotColor} style={{ flexShrink: 0 }} />
               </div>
             );
           })}
