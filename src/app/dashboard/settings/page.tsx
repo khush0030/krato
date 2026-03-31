@@ -1368,25 +1368,53 @@ export default function SettingsPage() {
                     </p>
                   )}
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={() => (connected && isSynced(p.id)) ? null : connected ? handleSync(p.id) : handleConnect(p.id)} style={{
-                      flex: 1, padding: 10, borderRadius: 8, fontSize: 14, fontWeight: 600,
-                      cursor: (connected && isSynced(p.id)) ? 'default' : 'pointer',
-                      backgroundColor: (connected && isSynced(p.id)) ? 'transparent' : connected ? c.warning : c.accent,
-                      color: (connected && isSynced(p.id)) ? c.textSecondary : 'white',
-                      border: (connected && isSynced(p.id)) ? `1px solid ${c.borderStrong}` : 'none',
-                    }}>
-                      {(connected && isSynced(p.id)) ? "Connected" : connected ? "Sync Now" : "Connect"}
-                    </button>
-                    {connected && (
-                      <button onClick={() => handleSync(p.id)} disabled={isSyncing} style={{
-                        ...ghostBtn,
-                        padding: '10px 16px', fontSize: 13,
-                        opacity: isSyncing ? 0.6 : 1,
-                        cursor: isSyncing ? 'wait' : 'pointer',
+                    {!connected ? (
+                      <button onClick={() => handleConnect(p.id)} style={{
+                        flex: 1, padding: 10, borderRadius: 8, fontSize: 14, fontWeight: 600,
+                        cursor: 'pointer', backgroundColor: c.accent, color: 'white', border: 'none',
                       }}>
-                        {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-                        {isSyncing ? "Syncing..." : "Sync Now"}
+                        Connect
                       </button>
+                    ) : (
+                      <>
+                        <button onClick={() => handleSync(p.id)} disabled={isSyncing} style={{
+                          flex: 1, padding: 10, borderRadius: 8, fontSize: 13, fontWeight: 600,
+                          cursor: isSyncing ? 'wait' : 'pointer',
+                          backgroundColor: isSynced(p.id) ? 'transparent' : c.warning,
+                          color: isSynced(p.id) ? c.textSecondary : 'white',
+                          border: isSynced(p.id) ? `1px solid ${c.borderStrong}` : 'none',
+                          opacity: isSyncing ? 0.6 : 1,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        }}>
+                          <RefreshCw size={13} style={{ animation: isSyncing ? 'spin 1s linear infinite' : 'none' }} />
+                          {isSyncing ? 'Syncing...' : 'Sync Now'}
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!int || !confirm(`Disconnect ${p.name}? You can reconnect anytime.`)) return;
+                            try {
+                              await fetch('/api/integrations/disconnect', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ integration_id: int.id }),
+                              });
+                              refetch();
+                            } catch {}
+                          }}
+                          style={{
+                            padding: '10px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                            cursor: 'pointer', backgroundColor: 'transparent',
+                            color: c.danger, border: `1px solid ${c.danger}40`,
+                            display: 'flex', alignItems: 'center', gap: 4,
+                            transition: 'all 0.15s',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.backgroundColor = c.dangerSubtle; }}
+                          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                          title={`Disconnect ${p.name}`}
+                        >
+                          <X size={13} />
+                        </button>
+                      </>
                     )}
                   </div>
                   {p.id === 'meta_ads' && (
