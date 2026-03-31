@@ -117,22 +117,28 @@ export default function SEOPage() {
       {!loading && !hasData && (
         <EmptyState
           icon={Search}
-          title={days <= 14 ? "No data for this date range" : "No GSC data yet"}
-          description={days <= 14
-            ? "No GSC data found for the selected period. Your data may not cover this range — try syncing fresh data."
-            : "Connect and sync Google Search Console in Settings to see keyword intelligence here."
-          }
-          actionLabel={days <= 14 ? (syncing ? "Syncing..." : "Sync Now") : "Go to Settings"}
+          title="No GSC data found"
+          description={`No search data for the last ${days} days. Hit Sync Now to pull fresh data from Google Search Console.`}
+          actionLabel={syncing ? "Syncing..." : "Sync Now"}
           onAction={() => {
-            if (days <= 14) {
-              setSyncing(true);
-              fetch('/api/sync/gsc', { method: 'POST' })
-                .then(() => window.location.reload())
-                .catch(err => console.error('Sync failed:', err))
-                .finally(() => setSyncing(false));
-            } else {
-              router.push('/dashboard/settings');
-            }
+            if (!workspaceId) { router.push('/dashboard/settings'); return; }
+            setSyncing(true);
+            import('@/lib/supabase').then(({ supabase }) =>
+              supabase.auth.getSession().then(({ data: { session } }) => {
+                if (!session) { router.push('/dashboard/settings'); setSyncing(false); return; }
+                return fetch('/api/integrations/list?workspace_id=' + workspaceId, {
+                  headers: { Authorization: `Bearer ${session.access_token}` },
+                }).then(r => r.json()).then(res => {
+                  const gscInt = (res.integrations || []).find((i: any) => i.provider === 'gsc' && i.status === 'connected');
+                  if (!gscInt) { router.push('/dashboard/settings'); setSyncing(false); return; }
+                  return fetch('/api/sync/gsc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+                    body: JSON.stringify({ integration_id: gscInt.id, workspace_id: workspaceId }),
+                  }).then(() => window.location.reload());
+                });
+              })
+            ).catch(err => console.error('Sync failed:', err)).finally(() => setSyncing(false));
           }}
         />
       )}
