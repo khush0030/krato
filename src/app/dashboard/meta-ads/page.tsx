@@ -156,7 +156,7 @@ export default function MetaAdsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
-                {['Campaign', 'Spend', 'Clicks', 'Impressions', 'Reach', 'CTR', 'CPC', 'ROAS'].map(h => (
+                {['Campaign', 'Status', 'Spend', 'Clicks', 'Impressions', 'CTR', 'CPC', 'ROAS'].map(h => (
                   <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: c.textSecondary, textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: `1px solid ${c.border}`, whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -170,13 +170,13 @@ export default function MetaAdsPage() {
                   <td style={{ padding: '12px 16px', maxWidth: 240 }}>
                     <div style={{ fontWeight: 500, color: c.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 13 }}>{campaign.campaign_name}</div>
                   </td>
-                  <td style={{ padding: '12px 16px', fontWeight: 500, color: c.text, fontSize: 13, fontFamily: 'var(--font-mono)' }}>${(campaign.spend || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                  <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{(campaign.clicks || 0).toLocaleString()}</td>
-                  <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{(campaign.impressions || 0).toLocaleString()}</td>
-                  <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{(campaign.reach || 0).toLocaleString()}</td>
-                  <td style={{ padding: '12px 16px', color: campaign.ctr > 0 ? '#10B981' : c.textMuted, fontWeight: 500, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{campaign.ctr > 0 ? `${campaign.ctr.toFixed(2)}%` : '--'}</td>
-                  <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{campaign.cpc > 0 ? `$${campaign.cpc.toFixed(2)}` : '--'}</td>
-                  <td style={{ padding: '12px 16px', color: campaign.roas > 0 ? c.accent : c.textMuted, fontWeight: 600, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{campaign.roas > 0 ? `${campaign.roas.toFixed(2)}x` : '--'}</td>
+                  <td style={{ padding: '12px 16px' }}>{campaign.status ? <StatusBadge status={campaign.status} /> : '--'}</td>
+                  <td style={{ padding: '12px 16px', fontWeight: 500, color: c.text, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.spend === 'string' ? campaign.spend : `$${(campaign.spend || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</td>
+                  <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.clicks === 'string' ? campaign.clicks : (campaign.clicks || 0).toLocaleString()}</td>
+                  <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.impressions === 'string' ? campaign.impressions : (campaign.impressions || 0).toLocaleString()}</td>
+                  <td style={{ padding: '12px 16px', color: c.textMuted, fontWeight: 500, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.ctr === 'string' ? campaign.ctr : campaign.ctr > 0 ? `${campaign.ctr.toFixed(2)}%` : '--'}</td>
+                  <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.cpc === 'string' ? campaign.cpc : campaign.cpc > 0 ? `$${campaign.cpc.toFixed(2)}` : '--'}</td>
+                  <td style={{ padding: '12px 16px', color: c.textMuted, fontWeight: 600, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.roas === 'string' ? campaign.roas : campaign.roas > 0 ? `${campaign.roas.toFixed(2)}x` : '--'}</td>
                 </tr>
               ))}
             </tbody>

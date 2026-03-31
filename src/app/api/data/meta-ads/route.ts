@@ -25,7 +25,53 @@ export async function GET(req: NextRequest) {
       .order('date', { ascending: false });
 
     if (!rows || rows.length === 0) {
-      return NextResponse.json({ campaigns: [], totals: null, message: 'No data yet. Sync your Meta Ads integration first.' });
+      // Fallback: check analytics_data table for campaign-level data (stored by sync)
+      const { data: fallback } = await getSupabaseAdmin()
+        .from('analytics_data')
+        .select('data')
+        .eq('workspace_id', workspaceId)
+        .eq('provider', 'meta_ads')
+        .eq('metric_type', 'campaigns')
+        .order('synced_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (fallback?.data && Array.isArray(fallback.data) && fallback.data.length > 0) {
+        const campaigns = fallback.data.map((c: any) => ({
+          campaign_name: c.name || c.campaign_name || 'Unknown',
+          status: c.status || 'UNKNOWN',
+          objective: c.objective || '',
+          budget: c.budget || 'N/A',
+          spend: c.spend || '—',
+          impressions: c.impressions || '0',
+          clicks: c.clicks || '0',
+          ctr: c.ctr || '0%',
+          cpc: c.cpc || '—',
+          roas: c.roas || '—',
+          currency: c.currency || '',
+        }));
+
+        // Parse totals from the formatted campaign data
+        const parseNum = (v: any) => {
+          if (typeof v === 'number') return v;
+          if (typeof v !== 'string') return 0;
+          return parseFloat(v.replace(/[^0-9.-]/g, '')) || 0;
+        };
+
+        const totals = {
+          spend: campaigns.reduce((s: number, c: any) => s + parseNum(c.spend), 0),
+          clicks: campaigns.reduce((s: number, c: any) => s + parseNum(c.clicks), 0),
+          impressions: campaigns.reduce((s: number, c: any) => s + parseNum(c.impressions), 0),
+          reach: 0,
+          conversions: 0,
+          revenue: 0,
+          roas: 0,
+        };
+
+        return NextResponse.json({ campaigns, totals, source: 'analytics_data' });
+      }
+
+      return NextResponse.json({ campaigns: [], totals: null, message: 'No data yet. Click Sync Now to pull your Meta Ads data.' });
     }
 
     // Aggregate by campaign
