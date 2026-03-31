@@ -344,20 +344,7 @@ function LandingInner() {
           >
             Join the waitlist <ArrowRight size={18} />
           </button>
-          <button
-            onClick={() => scrollTo('features')}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '16px 28px', borderRadius: 12,
-              border: `1px solid ${c.borderStrong}`, backgroundColor: 'transparent',
-              color: c.text, fontSize: 16, fontWeight: 500, cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = c.bgCardHover)}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-          >
-            <Play size={16} /> Watch demo
-          </button>
+
         </div>
         <p style={{ fontSize: 13, color: c.textMuted }}>Free early access &middot; No credit card &middot; Be first in line</p>
 
