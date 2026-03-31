@@ -4,6 +4,7 @@ import { Bell, AlertCircle, AlertTriangle, Info, CheckCircle2, TrendingDown, Tre
 import { PageShell } from '@/components/PageShell';
 import { useWorkspace, useGSCData, useGA4Data } from '@/lib/hooks';
 import { useWorkspaceCtx } from '@/lib/workspace-context';
+import { useTheme } from '@/lib/theme';
 
 type Alert = {
   id: string;
@@ -127,6 +128,7 @@ const severityConfig = {
 };
 
 export default function AlertsPage() {
+  const { c } = useTheme();
   const { workspace } = useWorkspaceCtx();
   const { data: gscResp, loading: gscLoading } = useGSCData(workspace?.id, 'keywords', 30);
   const { data: ga4Resp, loading: ga4Loading } = useGA4Data(workspace?.id, 'overview', 30);
@@ -156,10 +158,10 @@ export default function AlertsPage() {
         ].map(s => (
           <div key={s.label} style={{ padding: '12px 20px', borderRadius: 10, backgroundColor: s.bg, border: `1px solid ${s.color}20`, display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 22, fontWeight: 800, color: s.color, fontFamily: 'var(--font-mono)' }}>{s.count}</span>
-            <span style={{ fontSize: 13, color: '#888888' }}>{s.label}</span>
+            <span style={{ fontSize: 13, color: c.textSecondary }}>{s.label}</span>
           </div>
         ))}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#555555' }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: c.textMuted }}>
           <RefreshCw size={13} />
           <span>Based on your last sync</span>
         </div>
@@ -168,7 +170,7 @@ export default function AlertsPage() {
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {[1,2,3].map(i => (
-            <div key={i} style={{ height: 80, backgroundColor: '#111111', border: '1px solid #222222', borderRadius: 12, animation: 'pulse 1.5s ease-in-out infinite' }} />
+            <div key={i} style={{ height: 80, backgroundColor: c.bgCard, border: `1px solid ${c.border}`, borderRadius: 12, animation: 'pulse 1.5s ease-in-out infinite' }} />
           ))}
         </div>
       ) : (
@@ -179,18 +181,18 @@ export default function AlertsPage() {
               <div key={alert.id} style={{ padding: '16px 20px', borderRadius: 12, backgroundColor: cfg.bg, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                 <cfg.icon size={20} color={cfg.color} style={{ flexShrink: 0, marginTop: 1 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA', marginBottom: 4 }}>{alert.title}</div>
-                  <div style={{ fontSize: 13, color: '#888888', lineHeight: 1.5 }}>{alert.detail}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: c.text, marginBottom: 4 }}>{alert.title}</div>
+                  <div style={{ fontSize: 13, color: c.textSecondary, lineHeight: 1.5 }}>{alert.detail}</div>
                   <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, backgroundColor: `${cfg.color}12`, color: cfg.color }}>
                       {alert.source}
                     </span>
-                    <span style={{ fontSize: 11, color: '#555555' }}>Live data</span>
+                    <span style={{ fontSize: 11, color: c.textMuted }}>Live data</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setDismissed(prev => new Set([...prev, alert.id]))}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#555555', padding: 4, flexShrink: 0 }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: c.textMuted, padding: 4, flexShrink: 0 }}
                   title="Dismiss"
                 >
                   <X size={16} />
@@ -205,7 +207,7 @@ export default function AlertsPage() {
         <div style={{ marginTop: 16, textAlign: 'center' }}>
           <button
             onClick={() => setDismissed(new Set())}
-            style={{ fontSize: 12, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+            style={{ fontSize: 12, color: c.accent, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
           >
             Restore {dismissed.size} dismissed alert{dismissed.size > 1 ? 's' : ''}
           </button>
@@ -214,10 +216,10 @@ export default function AlertsPage() {
 
       {/* Setup note if no data */}
       {!loading && gscKeywords.length === 0 && ga4Data.length === 0 && (
-        <div style={{ marginTop: 20, padding: 20, borderRadius: 12, backgroundColor: '#111111', border: '1px solid #222222', textAlign: 'center' }}>
-          <Bell size={28} color="#555555" style={{ marginBottom: 10 }} />
-          <p style={{ fontSize: 14, color: '#888888', marginBottom: 8 }}>Connect and sync GSC or GA4 to get real-time alerts</p>
-          <a href="/dashboard/settings" style={{ fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>Go to Settings &rarr;</a>
+        <div style={{ marginTop: 20, padding: 20, borderRadius: 12, backgroundColor: c.bgCard, border: `1px solid ${c.border}`, textAlign: 'center' }}>
+          <Bell size={28} color={c.textMuted} style={{ marginBottom: 10 }} />
+          <p style={{ fontSize: 14, color: c.textSecondary, marginBottom: 8 }}>Connect and sync GSC or GA4 to get real-time alerts</p>
+          <a href="/dashboard/settings" style={{ fontSize: 13, color: c.accent, textDecoration: 'none', fontWeight: 500 }}>Go to Settings &rarr;</a>
         </div>
       )}
     </PageShell>

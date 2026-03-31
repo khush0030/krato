@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ArrowRight, Check, Zap, Brain, Target, FileText, ChevronRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { ThemeProvider, useTheme } from '@/lib/theme';
 
 const FEATURES = [
   {
@@ -56,7 +57,8 @@ const METRICS = [
   { value: 'Trusted by', label: 'marketing teams' },
 ];
 
-export default function LandingPage() {
+function LandingInner() {
+  const { c } = useTheme();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
 
@@ -73,7 +75,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0A0A0A', color: '#FAFAFA', fontFamily: 'var(--font-body)', overflowX: 'hidden' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: c.bgPage, color: c.text, fontFamily: 'var(--font-body)', overflowX: 'hidden' }}>
 
       {/* ──── Navbar ──── */}
       <nav style={{
@@ -82,26 +84,26 @@ export default function LandingPage() {
         padding: '0 40px', height: 64,
         backgroundColor: scrolled ? 'rgba(10,10,10,0.8)' : 'transparent',
         backdropFilter: scrolled ? 'blur(16px) saturate(180%)' : 'none',
-        borderBottom: scrolled ? '1px solid #222222' : '1px solid transparent',
+        borderBottom: scrolled ? `1px solid ${c.border}` : '1px solid transparent',
         transition: 'all 0.3s ease',
       }}>
-        <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.5px', color: '#FAFAFA' }}>
-          <span style={{ color: '#6366F1' }}>L</span>umnix
+        <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.5px', color: c.text }}>
+          <span style={{ color: c.accent }}>L</span>umnix
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <a href="#features" style={{ padding: '8px 16px', color: '#888888', fontSize: 14, textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>Features</a>
-          <a href="#pricing" style={{ padding: '8px 16px', color: '#888888', fontSize: 14, textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>Pricing</a>
+          <a href="#features" style={{ padding: '8px 16px', color: c.textSecondary, fontSize: 14, textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>Features</a>
+          <a href="#pricing" style={{ padding: '8px 16px', color: c.textSecondary, fontSize: 14, textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>Pricing</a>
           <button
             onClick={() => router.push('/auth/signin')}
-            style={{ padding: '8px 16px', borderRadius: 8, border: 'none', backgroundColor: 'transparent', color: '#FAFAFA', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
+            style={{ padding: '8px 16px', borderRadius: 8, border: 'none', backgroundColor: 'transparent', color: c.text, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
           >
             Sign in
           </button>
           <button
             onClick={() => router.push('/auth/signup')}
-            style={{ padding: '9px 20px', borderRadius: 8, border: 'none', backgroundColor: '#6366F1', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'background-color 0.2s' }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#4F46E5')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#6366F1')}
+            style={{ padding: '9px 20px', borderRadius: 8, border: 'none', backgroundColor: c.accent, color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'background-color 0.2s' }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = c.accentHover)}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = c.accent)}
           >
             Start free trial
           </button>
@@ -115,24 +117,24 @@ export default function LandingPage() {
           display: 'inline-flex', alignItems: 'center', gap: 8,
           padding: '6px 16px', borderRadius: 100,
           border: '1px solid rgba(99,102,241,0.3)',
-          backgroundColor: 'rgba(99,102,241,0.08)',
+          backgroundColor: c.accentSubtle,
           marginBottom: 32,
         }}>
-          <Zap size={12} color="#6366F1" />
-          <span style={{ fontSize: 13, color: '#6366F1', fontWeight: 600 }}>Marketing Intelligence Platform</span>
+          <Zap size={12} color={c.accent} />
+          <span style={{ fontSize: 13, color: c.accent, fontWeight: 600 }}>Marketing Intelligence Platform</span>
         </div>
 
         <h1 style={{
           fontSize: 64, fontWeight: 700, lineHeight: 1.05,
           letterSpacing: '-2.5px', marginBottom: 24,
           fontFamily: 'var(--font-display)',
-          background: 'linear-gradient(180deg, #FAFAFA 0%, #888888 100%)',
+          background: `linear-gradient(180deg, ${c.text} 0%, ${c.textSecondary} 100%)`,
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>
           Stop switching tabs.<br />Start making decisions.
         </h1>
 
-        <p style={{ fontSize: 18, color: '#888888', lineHeight: 1.7, marginBottom: 40, maxWidth: 560, margin: '0 auto 40px' }}>
+        <p style={{ fontSize: 18, color: c.textSecondary, lineHeight: 1.7, marginBottom: 40, maxWidth: 560, margin: '0 auto 40px' }}>
           Lumnix unifies GA4, GSC, Google Ads and Meta Ads into one AI-powered dashboard. Anomaly detection, competitor intelligence, automated reports.
         </p>
 
@@ -142,12 +144,12 @@ export default function LandingPage() {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '14px 28px', borderRadius: 10, border: 'none',
-              backgroundColor: '#6366F1', color: 'white',
+              backgroundColor: c.accent, color: 'white',
               fontSize: 15, fontWeight: 600, cursor: 'pointer',
               transition: 'background-color 0.2s',
             }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#4F46E5')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#6366F1')}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = c.accentHover)}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = c.accent)}
           >
             Start free trial <ArrowRight size={16} />
           </button>
@@ -156,11 +158,11 @@ export default function LandingPage() {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '14px 28px', borderRadius: 10,
-              border: '1px solid #333333', backgroundColor: 'transparent',
-              color: '#FAFAFA', fontSize: 15, fontWeight: 500, cursor: 'pointer',
+              border: `1px solid ${c.borderStrong}`, backgroundColor: 'transparent',
+              color: c.text, fontSize: 15, fontWeight: 500, cursor: 'pointer',
               transition: 'background-color 0.2s',
             }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#1A1A1A')}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = c.bgCardHover)}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
           >
             See how it works
@@ -170,8 +172,8 @@ export default function LandingPage() {
         {/* Hero visual — fake dashboard mockup */}
         <div style={{
           marginTop: 72, position: 'relative',
-          borderRadius: 16, border: '1px solid #222222',
-          backgroundColor: '#111111', padding: 24,
+          borderRadius: 16, border: `1px solid ${c.border}`,
+          backgroundColor: c.bgCard, padding: 24,
           overflow: 'hidden',
         }}>
           {/* Glow effect */}
@@ -184,25 +186,25 @@ export default function LandingPage() {
 
           {/* Fake top bar */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#333333' }} />
-            <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#333333' }} />
-            <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#333333' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: c.borderStrong }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: c.borderStrong }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: c.borderStrong }} />
             <div style={{ flex: 1 }} />
-            <div style={{ width: 60, height: 6, borderRadius: 3, backgroundColor: '#1A1A1A' }} />
+            <div style={{ width: 60, height: 6, borderRadius: 3, backgroundColor: c.bgCardHover }} />
           </div>
 
           {/* Fake stat cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
             {['12.4K', '8.2K', '#4.2', '89%'].map((val, i) => (
-              <div key={i} style={{ backgroundColor: '#1A1A1A', borderRadius: 10, padding: '16px 14px', border: '1px solid #222222' }}>
-                <div style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#333333', marginBottom: 12 }} />
-                <div style={{ fontSize: 22, fontWeight: 500, fontFamily: 'var(--font-mono)', color: '#FAFAFA', letterSpacing: '-0.5px' }}>{val}</div>
+              <div key={i} style={{ backgroundColor: c.bgCardHover, borderRadius: 10, padding: '16px 14px', border: `1px solid ${c.border}` }}>
+                <div style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: c.borderStrong, marginBottom: 12 }} />
+                <div style={{ fontSize: 22, fontWeight: 500, fontFamily: 'var(--font-mono)', color: c.text, letterSpacing: '-0.5px' }}>{val}</div>
               </div>
             ))}
           </div>
 
           {/* Fake chart area */}
-          <div style={{ backgroundColor: '#1A1A1A', borderRadius: 10, padding: 20, border: '1px solid #222222', height: 160, position: 'relative', overflow: 'hidden' }}>
+          <div style={{ backgroundColor: c.bgCardHover, borderRadius: 10, padding: 20, border: `1px solid ${c.border}`, height: 160, position: 'relative', overflow: 'hidden' }}>
             <svg width="100%" height="100%" viewBox="0 0 600 120" preserveAspectRatio="none" style={{ position: 'absolute', bottom: 0, left: 0 }}>
               <defs>
                 <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
@@ -220,15 +222,15 @@ export default function LandingPage() {
       {/* ──── Metrics bar ──── */}
       <div style={{
         display: 'flex', justifyContent: 'center', gap: 48, padding: '32px 40px',
-        borderTop: '1px solid #222222', borderBottom: '1px solid #222222',
+        borderTop: `1px solid ${c.border}`, borderBottom: `1px solid ${c.border}`,
         flexWrap: 'wrap',
       }}>
         {METRICS.map((m, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: '#FAFAFA', fontFamily: 'var(--font-mono)' }}>{m.value}</span>
-            <span style={{ fontSize: 14, color: '#555555' }}>{m.label}</span>
+            <span style={{ fontSize: 18, fontWeight: 700, color: c.text, fontFamily: 'var(--font-mono)' }}>{m.value}</span>
+            <span style={{ fontSize: 14, color: c.textMuted }}>{m.label}</span>
             {i < METRICS.length - 1 && (
-              <div style={{ width: 1, height: 24, backgroundColor: '#222222', marginLeft: 36 }} />
+              <div style={{ width: 1, height: 24, backgroundColor: c.border, marginLeft: 36 }} />
             )}
           </div>
         ))}
@@ -237,10 +239,10 @@ export default function LandingPage() {
       {/* ──── Features ──── */}
       <section id="features" style={{ padding: '100px 40px', maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <h2 style={{ fontSize: 40, fontWeight: 700, letterSpacing: '-1.5px', marginBottom: 16, color: '#FAFAFA' }}>
+          <h2 style={{ fontSize: 40, fontWeight: 700, letterSpacing: '-1.5px', marginBottom: 16, color: c.text }}>
             Intelligence, not just data
           </h2>
-          <p style={{ fontSize: 16, color: '#555555', maxWidth: 480, margin: '0 auto' }}>
+          <p style={{ fontSize: 16, color: c.textMuted, maxWidth: 480, margin: '0 auto' }}>
             Built for marketing teams who need answers, not dashboards full of numbers.
           </p>
         </div>
@@ -249,23 +251,23 @@ export default function LandingPage() {
             <div
               key={f.title}
               style={{
-                backgroundColor: '#111111', border: '1px solid #222222',
+                backgroundColor: c.bgCard, border: `1px solid ${c.border}`,
                 borderRadius: 12, padding: 28,
                 transition: 'border-color 0.2s',
               }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = '#333333')}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = '#222222')}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = c.borderStrong)}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = c.border)}
             >
               <div style={{
                 width: 44, height: 44, borderRadius: 10,
-                backgroundColor: 'rgba(99,102,241,0.08)',
+                backgroundColor: c.accentSubtle,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 marginBottom: 20,
               }}>
-                <f.icon size={20} color="#6366F1" />
+                <f.icon size={20} color={c.accent} />
               </div>
-              <h3 style={{ fontSize: 17, fontWeight: 600, color: '#FAFAFA', marginBottom: 10 }}>{f.title}</h3>
-              <p style={{ fontSize: 14, color: '#888888', lineHeight: 1.65 }}>{f.desc}</p>
+              <h3 style={{ fontSize: 17, fontWeight: 600, color: c.text, marginBottom: 10 }}>{f.title}</h3>
+              <p style={{ fontSize: 14, color: c.textSecondary, lineHeight: 1.65 }}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -274,18 +276,18 @@ export default function LandingPage() {
       {/* ──── Pricing ──── */}
       <section id="pricing" style={{ padding: '100px 40px', maxWidth: 1000, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <h2 style={{ fontSize: 40, fontWeight: 700, letterSpacing: '-1.5px', marginBottom: 16, color: '#FAFAFA' }}>
+          <h2 style={{ fontSize: 40, fontWeight: 700, letterSpacing: '-1.5px', marginBottom: 16, color: c.text }}>
             Simple, transparent pricing
           </h2>
-          <p style={{ fontSize: 16, color: '#555555' }}>Start free. Upgrade when you're ready.</p>
+          <p style={{ fontSize: 16, color: c.textMuted }}>Start free. Upgrade when you&apos;re ready.</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, alignItems: 'start' }}>
           {PRICING.map(p => (
             <div
               key={p.name}
               style={{
-                backgroundColor: '#111111',
-                border: `1px solid ${p.highlight ? '#6366F1' : '#222222'}`,
+                backgroundColor: c.bgCard,
+                border: `1px solid ${p.highlight ? c.accent : c.border}`,
                 borderRadius: 12, padding: 32, position: 'relative',
                 ...(p.highlight ? { boxShadow: '0 0 60px rgba(99,102,241,0.1)' } : {}),
               }}
@@ -293,7 +295,7 @@ export default function LandingPage() {
               {p.badge && (
                 <div style={{
                   position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
-                  backgroundColor: '#6366F1', color: 'white',
+                  backgroundColor: c.accent, color: 'white',
                   fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 100,
                   letterSpacing: '0.02em',
                 }}>
@@ -301,18 +303,18 @@ export default function LandingPage() {
                 </div>
               )}
               <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#888888', marginBottom: 8 }}>{p.name}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: c.textSecondary, marginBottom: 8 }}>{p.name}</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                  <span style={{ fontSize: 42, fontWeight: 700, color: '#FAFAFA', letterSpacing: '-1px', fontFamily: 'var(--font-mono)' }}>{p.price}</span>
-                  <span style={{ fontSize: 14, color: '#555555' }}>{p.period}</span>
+                  <span style={{ fontSize: 42, fontWeight: 700, color: c.text, letterSpacing: '-1px', fontFamily: 'var(--font-mono)' }}>{p.price}</span>
+                  <span style={{ fontSize: 14, color: c.textMuted }}>{p.period}</span>
                 </div>
-                <p style={{ fontSize: 13, color: '#555555', marginTop: 8 }}>{p.desc}</p>
+                <p style={{ fontSize: 13, color: c.textMuted, marginTop: 8 }}>{p.desc}</p>
               </div>
               <div style={{ marginBottom: 28 }}>
                 {p.features.map(f => (
                   <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                    <Check size={14} color={p.highlight ? '#6366F1' : '#555555'} strokeWidth={2.5} />
-                    <span style={{ fontSize: 13, color: '#888888' }}>{f}</span>
+                    <Check size={14} color={p.highlight ? c.accent : c.textMuted} strokeWidth={2.5} />
+                    <span style={{ fontSize: 13, color: c.textSecondary }}>{f}</span>
                   </div>
                 ))}
               </div>
@@ -321,16 +323,16 @@ export default function LandingPage() {
                 style={{
                   width: '100%', padding: 12, borderRadius: 8, cursor: 'pointer',
                   fontSize: 14, fontWeight: 600,
-                  border: p.highlight ? 'none' : '1px solid #333333',
-                  backgroundColor: p.highlight ? '#6366F1' : 'transparent',
-                  color: p.highlight ? 'white' : '#FAFAFA',
+                  border: p.highlight ? 'none' : `1px solid ${c.borderStrong}`,
+                  backgroundColor: p.highlight ? c.accent : 'transparent',
+                  color: p.highlight ? 'white' : c.text,
                   transition: 'background-color 0.2s',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = p.highlight ? '#4F46E5' : '#1A1A1A';
+                  e.currentTarget.style.backgroundColor = p.highlight ? c.accentHover : c.bgCardHover;
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.backgroundColor = p.highlight ? '#6366F1' : 'transparent';
+                  e.currentTarget.style.backgroundColor = p.highlight ? c.accent : 'transparent';
                 }}
               >
                 {p.highlight ? 'Start free trial' : p.name === 'Agency' ? 'Contact sales' : 'Get started'}
@@ -342,10 +344,10 @@ export default function LandingPage() {
 
       {/* ──── CTA ──── */}
       <section style={{ padding: '100px 40px', textAlign: 'center' }}>
-        <h2 style={{ fontSize: 40, fontWeight: 700, letterSpacing: '-1.5px', marginBottom: 16, color: '#FAFAFA' }}>
+        <h2 style={{ fontSize: 40, fontWeight: 700, letterSpacing: '-1.5px', marginBottom: 16, color: c.text }}>
           Ready to stop guessing?
         </h2>
-        <p style={{ fontSize: 16, color: '#555555', marginBottom: 40, maxWidth: 480, margin: '0 auto 40px' }}>
+        <p style={{ fontSize: 16, color: c.textMuted, marginBottom: 40, maxWidth: 480, margin: '0 auto 40px' }}>
           Join marketing teams who replaced 6 tools with one intelligent dashboard.
         </p>
         <button
@@ -353,12 +355,12 @@ export default function LandingPage() {
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: '16px 36px', borderRadius: 10, border: 'none',
-            backgroundColor: '#6366F1', color: 'white',
+            backgroundColor: c.accent, color: 'white',
             fontSize: 16, fontWeight: 600, cursor: 'pointer',
             transition: 'background-color 0.2s',
           }}
-          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#4F46E5')}
-          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#6366F1')}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = c.accentHover)}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = c.accent)}
         >
           Start free trial <ArrowRight size={18} />
         </button>
@@ -366,26 +368,34 @@ export default function LandingPage() {
 
       {/* ──── Footer ──── */}
       <footer style={{
-        padding: '32px 40px', borderTop: '1px solid #222222',
+        padding: '32px 40px', borderTop: `1px solid ${c.border}`,
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         flexWrap: 'wrap', gap: 16,
       }}>
         <div>
-          <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.5px', color: '#FAFAFA' }}>
-            <span style={{ color: '#6366F1' }}>L</span>umnix
+          <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.5px', color: c.text }}>
+            <span style={{ color: c.accent }}>L</span>umnix
           </span>
-          <span style={{ fontSize: 13, color: '#555555', marginLeft: 12 }}>AI-powered marketing intelligence</span>
+          <span style={{ fontSize: 13, color: c.textMuted, marginLeft: 12 }}>AI-powered marketing intelligence</span>
         </div>
         <div style={{ display: 'flex', gap: 24 }}>
           {['Privacy', 'Terms', 'Support', 'Status'].map(l => (
-            <a key={l} href="#" style={{ fontSize: 13, color: '#555555', textDecoration: 'none', transition: 'color 0.2s' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#888888')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#555555')}
+            <a key={l} href="#" style={{ fontSize: 13, color: c.textMuted, textDecoration: 'none', transition: 'color 0.2s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = c.textSecondary)}
+              onMouseLeave={e => (e.currentTarget.style.color = c.textMuted)}
             >{l}</a>
           ))}
         </div>
-        <span style={{ fontSize: 12, color: '#333333' }}>&copy; 2026 Oltaflock AI. All rights reserved.</span>
+        <span style={{ fontSize: 12, color: c.borderStrong }}>&copy; 2026 Oltaflock AI. All rights reserved.</span>
       </footer>
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <ThemeProvider>
+      <LandingInner />
+    </ThemeProvider>
   );
 }

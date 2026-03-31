@@ -649,6 +649,7 @@ function ProfileTab() {
 }
 
 function BillingTab() {
+  const { c, card } = useStyles();
   const { workspace } = useWorkspaceCtx();
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -724,20 +725,20 @@ function BillingTab() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
           <div style={{
             padding: '4px 10px', borderRadius: 6,
-            backgroundColor: currentPlan === 'free' ? 'rgba(85,85,85,0.1)' : T.accentSubtle,
-            color: currentPlan === 'free' ? T.textMuted : T.accent,
+            backgroundColor: currentPlan === 'free' ? 'rgba(85,85,85,0.1)' : c.accentSubtle,
+            color: currentPlan === 'free' ? c.textMuted : c.accent,
             fontSize: 12, fontWeight: 600, textTransform: 'uppercase',
           }}>
             {currentPlan} plan
           </div>
         </div>
-        <p style={{ fontSize: 13, color: T.textSecondary }}>
+        <p style={{ fontSize: 13, color: c.textSecondary }}>
           {currentPlan === 'free' ? 'Upgrade to unlock more integrations, longer data retention, and AI features.' : `You're on the ${currentPlan} plan.`}
         </p>
       </div>
 
       {error && (
-        <div style={{ marginBottom: 20, padding: '12px 16px', borderRadius: 8, backgroundColor: T.dangerSubtle, border: `1px solid ${T.dangerBorder}`, color: '#f87171', fontSize: 13 }}>
+        <div style={{ marginBottom: 20, padding: '12px 16px', borderRadius: 8, backgroundColor: c.dangerSubtle, border: `1px solid ${c.dangerBorder}`, color: c.danger, fontSize: 13 }}>
           {error}
         </div>
       )}
@@ -745,25 +746,25 @@ function BillingTab() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
         {plans.map(plan => (
           <div key={plan.id} style={{
-            ...cardStyle,
-            border: `1px solid ${plan.popular ? T.accent : plan.current ? T.successBorder : T.border}`,
+            ...card,
+            border: `1px solid ${plan.popular ? c.accent : plan.current ? c.successBorder : c.border}`,
             padding: 24,
             position: 'relative',
           }}>
             {plan.popular && (
-              <div style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', padding: '3px 12px', borderRadius: 6, backgroundColor: T.accent, color: 'white', fontSize: 11, fontWeight: 600 }}>
+              <div style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', padding: '3px 12px', borderRadius: 6, backgroundColor: c.accent, color: 'white', fontSize: 11, fontWeight: 600 }}>
                 Most Popular
               </div>
             )}
-            <div style={{ fontSize: 16, fontWeight: 700, color: T.text, marginBottom: 4 }}>{plan.name}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: c.text, marginBottom: 4 }}>{plan.name}</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginBottom: 16 }}>
-              <span style={{ fontSize: 32, fontWeight: 800, color: T.text, letterSpacing: '-0.03em', fontFamily: T.mono }}>{plan.price}</span>
-              <span style={{ fontSize: 13, color: T.textMuted }}>{plan.period}</span>
+              <span style={{ fontSize: 32, fontWeight: 800, color: c.text, letterSpacing: '-0.03em', fontFamily: 'var(--font-mono)' }}>{plan.price}</span>
+              <span style={{ fontSize: 13, color: c.textMuted }}>{plan.period}</span>
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0' }}>
               {plan.features.map((f, i) => (
-                <li key={i} style={{ fontSize: 13, color: T.textSecondary, padding: '4px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Check size={13} color={T.success} />
+                <li key={i} style={{ fontSize: 13, color: c.textSecondary, padding: '4px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Check size={13} color={c.success} />
                   {f}
                 </li>
               ))}
@@ -775,9 +776,9 @@ function BillingTab() {
                 width: '100%',
                 padding: 10,
                 borderRadius: 8,
-                border: plan.current ? `1px solid ${T.borderStrong}` : 'none',
-                backgroundColor: plan.current ? 'transparent' : plan.popular ? T.accent : T.surfaceElevated,
-                color: plan.current ? T.textMuted : plan.popular ? 'white' : T.text,
+                border: plan.current ? `1px solid ${c.borderStrong}` : 'none',
+                backgroundColor: plan.current ? 'transparent' : plan.popular ? c.accent : c.surfaceElevated,
+                color: plan.current ? c.textMuted : plan.popular ? 'white' : c.text,
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: plan.current || plan.id === 'free' ? 'default' : 'pointer',
@@ -794,6 +795,7 @@ function BillingTab() {
 }
 
 function SlackSection({ workspaceId }: { workspaceId: string | undefined }) {
+  const { c, card, label, inputBase, primaryBtn, ghostBtn } = useStyles();
   const [webhookUrl, setWebhookUrl] = useState('');
   const [connected, setConnected] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -863,30 +865,30 @@ function SlackSection({ workspaceId }: { workspaceId: string | undefined }) {
           <img src="https://cdn.simpleicons.org/slack/4A154B" width={26} height={26} alt="Slack" />
         </div>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: T.text }}>Slack Notifications</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: c.text }}>Slack Notifications</div>
           <StatusPill connected={connected} />
         </div>
       </div>
 
-      <div style={{ ...cardStyle, padding: 24 }}>
+      <div style={{ ...card, padding: 24 }}>
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Slack Webhook URL</label>
+          <label style={label}>Slack Webhook URL</label>
           <input
             type="url"
             value={webhookUrl}
             onChange={e => setWebhookUrl(e.target.value)}
             placeholder="https://hooks.slack.com/services/..."
-            style={{ ...inputBaseStyle, padding: '12px 14px', fontSize: 14 }}
-            onFocus={e => (e.target as HTMLInputElement).style.borderColor = T.accent}
-            onBlur={e => (e.target as HTMLInputElement).style.borderColor = T.border}
+            style={{ ...inputBase, padding: '12px 14px', fontSize: 14 }}
+            onFocus={e => (e.target as HTMLInputElement).style.borderColor = c.accent}
+            onBlur={e => (e.target as HTMLInputElement).style.borderColor = c.border}
           />
-          <p style={{ fontSize: 12, color: T.textMuted, marginTop: 6, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 12, color: c.textMuted, marginTop: 6, lineHeight: 1.5 }}>
             Get this from your Slack app settings &rarr; Incoming Webhooks. Alerts and anomaly notifications will be sent to this channel.
           </p>
         </div>
 
         {error && (
-          <div style={{ marginBottom: 12, padding: '8px 12px', borderRadius: 8, backgroundColor: T.dangerSubtle, border: `1px solid ${T.dangerBorder}`, color: '#f87171', fontSize: 13 }}>
+          <div style={{ marginBottom: 12, padding: '8px 12px', borderRadius: 8, backgroundColor: c.dangerSubtle, border: `1px solid ${c.dangerBorder}`, color: c.danger, fontSize: 13 }}>
             {error}
           </div>
         )}
@@ -894,9 +896,9 @@ function SlackSection({ workspaceId }: { workspaceId: string | undefined }) {
         {testResult && (
           <div style={{
             marginBottom: 12, padding: '8px 12px', borderRadius: 8,
-            backgroundColor: testResult.ok ? T.successSubtle : T.dangerSubtle,
-            border: `1px solid ${testResult.ok ? T.successBorder : T.dangerBorder}`,
-            color: testResult.ok ? '#4ade80' : '#f87171', fontSize: 13,
+            backgroundColor: testResult.ok ? c.successSubtle : c.dangerSubtle,
+            border: `1px solid ${testResult.ok ? c.successBorder : c.dangerBorder}`,
+            color: testResult.ok ? c.success : c.danger, fontSize: 13,
           }}>
             {testResult.text}
           </div>
@@ -907,8 +909,8 @@ function SlackSection({ workspaceId }: { workspaceId: string | undefined }) {
             onClick={handleSave}
             disabled={saving}
             style={{
-              ...primaryBtnStyle,
-              backgroundColor: saved ? T.success : T.accent,
+              ...primaryBtn,
+              backgroundColor: saved ? c.success : c.accent,
               opacity: saving ? 0.7 : 1,
               cursor: saving ? 'wait' : 'pointer',
             }}
@@ -920,7 +922,7 @@ function SlackSection({ workspaceId }: { workspaceId: string | undefined }) {
             <button
               onClick={handleTest}
               disabled={testing}
-              style={{ ...ghostBtnStyle, opacity: testing ? 0.7 : 1, cursor: testing ? 'wait' : 'pointer' }}
+              style={{ ...ghostBtn, opacity: testing ? 0.7 : 1, cursor: testing ? 'wait' : 'pointer' }}
             >
               {testing ? <Loader2 size={14} className="animate-spin" /> : null}
               {testing ? 'Sending...' : 'Send Test'}
@@ -933,6 +935,7 @@ function SlackSection({ workspaceId }: { workspaceId: string | undefined }) {
 }
 
 export default function SettingsPage() {
+  const { c, card, inputBase, primaryBtn, ghostBtn, destructiveBtn } = useStyles();
   const { toggle } = useTheme();
   const [activeTab, setActiveTab] = useState("general");
   const { workspace, loading: wsLoading, refetch: refetchWorkspace, setWorkspace } = useWorkspaceCtx();
@@ -1072,14 +1075,14 @@ export default function SettingsPage() {
   }
 
   return (
-    <div style={{ backgroundColor: T.bg, minHeight: '100vh' }}>
+    <div style={{ backgroundColor: c.bgPage, minHeight: '100vh' }}>
       <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 800, color: T.text, letterSpacing: '-0.5px' }}>Settings</h1>
-        <p style={{ fontSize: 14, color: T.textSecondary, marginTop: 4 }}>Manage integrations, brand, and preferences</p>
+        <h1 style={{ fontSize: 26, fontWeight: 800, color: c.text, letterSpacing: '-0.5px' }}>Settings</h1>
+        <p style={{ fontSize: 14, color: c.textSecondary, marginTop: 4 }}>Manage integrations, brand, and preferences</p>
       </div>
 
       {/* Horizontal Tabs: General | Integrations | Team | Alerts | Billing */}
-      <div style={{ display: 'flex', gap: 0, marginBottom: 28, borderBottom: `1px solid ${T.border}`, overflowX: 'auto' }}>
+      <div style={{ display: 'flex', gap: 0, marginBottom: 28, borderBottom: `1px solid ${c.border}`, overflowX: 'auto' }}>
         {[
           { id: 'integrations', label: 'General' },
           { id: 'team', label: 'Integrations' },
@@ -1090,9 +1093,9 @@ export default function SettingsPage() {
           <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
             padding: '12px 20px', fontSize: 14,
             fontWeight: activeTab === t.id ? 600 : 400,
-            color: activeTab === t.id ? T.text : T.textMuted,
+            color: activeTab === t.id ? c.text : c.textMuted,
             backgroundColor: 'transparent', border: 'none',
-            borderBottom: `2px solid ${activeTab === t.id ? T.accent : 'transparent'}`,
+            borderBottom: `2px solid ${activeTab === t.id ? c.accent : 'transparent'}`,
             cursor: 'pointer', marginBottom: -1, whiteSpace: 'nowrap',
             transition: 'color 0.15s, border-color 0.15s',
           }}>
@@ -1121,18 +1124,18 @@ export default function SettingsPage() {
       {activeTab === "integrations" && (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
-            <p style={{ fontSize: 14, color: T.textSecondary, margin: 0 }}>
+            <p style={{ fontSize: 14, color: c.textSecondary, margin: 0 }}>
               Connect your marketing accounts to start syncing real data.
               {wsLoading && " Loading..."}
-              {workspace && <span style={{ color: T.success }}> &middot; {workspace.name}</span>}
+              {workspace && <span style={{ color: c.success }}> &middot; {workspace.name}</span>}
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, color: T.textMuted }}>Auto-syncs daily at 2AM UTC</span>
+              <span style={{ fontSize: 11, color: c.textMuted }}>Auto-syncs daily at 2AM UTC</span>
               <button
                 onClick={handleSyncAll}
                 disabled={syncing === 'all'}
                 style={{
-                  ...primaryBtnStyle,
+                  ...primaryBtn,
                   padding: '8px 14px', fontSize: 13,
                   opacity: syncing === 'all' ? 0.7 : 1,
                   cursor: syncing === 'all' ? 'wait' : 'pointer',
@@ -1151,8 +1154,8 @@ export default function SettingsPage() {
               const isSyncing = syncing === p.id;
               return (
                 <div key={p.id} style={{
-                  ...cardStyle,
-                  border: `1px solid ${connected && isSynced(p.id) ? 'rgba(16,185,129,0.3)' : connected ? 'rgba(245,158,11,0.4)' : T.border}`,
+                  ...card,
+                  border: `1px solid ${connected && isSynced(p.id) ? 'rgba(16,185,129,0.3)' : connected ? 'rgba(245,158,11,0.4)' : c.border}`,
                   padding: 24,
                 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -1161,7 +1164,7 @@ export default function SettingsPage() {
                         <img src={`https://cdn.simpleicons.org/${p.logoSlug}/${p.color.replace('#', '')}`} width={26} height={26} alt={p.name} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                       </div>
                       <div>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: T.text }}>{p.name}</div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: c.text }}>{p.name}</div>
                         <div style={{ marginTop: 4 }}>
                           <StatusPill
                             connected={connected}
@@ -1171,9 +1174,9 @@ export default function SettingsPage() {
                       </div>
                     </div>
                   </div>
-                  <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 16, lineHeight: 1.4 }}>{p.desc}</p>
+                  <p style={{ fontSize: 13, color: c.textSecondary, marginBottom: 16, lineHeight: 1.4 }}>{p.desc}</p>
                   {int?.last_sync_at && (
-                    <p style={{ fontSize: 11, color: T.textMuted, marginBottom: 12, fontFamily: T.mono }}>
+                    <p style={{ fontSize: 11, color: c.textMuted, marginBottom: 12, fontFamily: 'var(--font-mono)' }}>
                       Last synced: {new Date(int.last_sync_at).toLocaleString()}
                     </p>
                   )}
@@ -1181,15 +1184,15 @@ export default function SettingsPage() {
                     <button onClick={() => (connected && isSynced(p.id)) ? null : connected ? handleSync(p.id) : handleConnect(p.id)} style={{
                       flex: 1, padding: 10, borderRadius: 8, fontSize: 14, fontWeight: 600,
                       cursor: (connected && isSynced(p.id)) ? 'default' : 'pointer',
-                      backgroundColor: (connected && isSynced(p.id)) ? 'transparent' : connected ? T.warning : T.accent,
-                      color: (connected && isSynced(p.id)) ? T.textSecondary : 'white',
-                      border: (connected && isSynced(p.id)) ? `1px solid ${T.borderStrong}` : 'none',
+                      backgroundColor: (connected && isSynced(p.id)) ? 'transparent' : connected ? c.warning : c.accent,
+                      color: (connected && isSynced(p.id)) ? c.textSecondary : 'white',
+                      border: (connected && isSynced(p.id)) ? `1px solid ${c.borderStrong}` : 'none',
                     }}>
                       {(connected && isSynced(p.id)) ? "Connected" : connected ? "Sync Now" : "Connect"}
                     </button>
                     {connected && (
                       <button onClick={() => handleSync(p.id)} disabled={isSyncing} style={{
-                        ...ghostBtnStyle,
+                        ...ghostBtn,
                         padding: '10px 16px', fontSize: 13,
                         opacity: isSyncing ? 0.6 : 1,
                         cursor: isSyncing ? 'wait' : 'pointer',
@@ -1219,30 +1222,30 @@ export default function SettingsPage() {
         <div style={{ maxWidth: 560 }}>
           {/* Slots indicator */}
           <div style={{
-            ...cardStyle,
+            ...card,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '16px 20px', marginBottom: 20,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Crown size={16} color={T.warning} />
+              <Crown size={16} color={c.warning} />
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: T.text }}>Free Plan</div>
-                <div style={{ fontSize: 12, color: T.textSecondary }}>Up to {teamData?.maxSlots || 2} additional team members</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: c.text }}>Free Plan</div>
+                <div style={{ fontSize: 12, color: c.textSecondary }}>Up to {teamData?.maxSlots || 2} additional team members</div>
               </div>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: T.text, fontFamily: T.mono }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: c.text, fontFamily: 'var(--font-mono)' }}>
               {teamData?.slotsUsed || 0} / {teamData?.maxSlots || 2}
-              <span style={{ fontSize: 12, color: T.textSecondary, fontWeight: 400, marginLeft: 4 }}>used</span>
+              <span style={{ fontSize: 12, color: c.textSecondary, fontWeight: 400, marginLeft: 4 }}>used</span>
             </div>
           </div>
 
           {/* Invite form */}
-          <div style={{ ...cardStyle, padding: '20px 24px', marginBottom: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: T.text, marginBottom: 4 }}>Invite a team member</h3>
-            <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 16 }}>They&#39;ll receive an email with a link to sign up and join your workspace.</p>
+          <div style={{ ...card, padding: '20px 24px', marginBottom: 20 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: c.text, marginBottom: 4 }}>Invite a team member</h3>
+            <p style={{ fontSize: 13, color: c.textSecondary, marginBottom: 16 }}>They&#39;ll receive an email with a link to sign up and join your workspace.</p>
             <form onSubmit={handleInvite} style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <div style={{ position: 'relative', flex: 1, minWidth: 180 }}>
-                <Mail size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: T.textMuted }} />
+                <Mail size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: c.textMuted }} />
                 <input
                   type="email"
                   value={inviteEmail}
@@ -1251,18 +1254,18 @@ export default function SettingsPage() {
                   required
                   disabled={teamData?.canInviteMore === false}
                   style={{
-                    ...inputBaseStyle,
+                    ...inputBase,
                     padding: '10px 14px 10px 36px',
                     opacity: teamData?.canInviteMore === false ? 0.5 : 1,
                   }}
-                  onFocus={e => (e.target as HTMLInputElement).style.borderColor = T.accent}
-                  onBlur={e => (e.target as HTMLInputElement).style.borderColor = T.border}
+                  onFocus={e => (e.target as HTMLInputElement).style.borderColor = c.accent}
+                  onBlur={e => (e.target as HTMLInputElement).style.borderColor = c.border}
                 />
               </div>
               <select
                 value={inviteRole}
                 onChange={e => setInviteRole(e.target.value)}
-                style={{ ...inputBaseStyle, width: 'auto', padding: '10px 12px', fontWeight: 500, cursor: 'pointer' }}
+                style={{ ...inputBase, width: 'auto', padding: '10px 12px', fontWeight: 500, cursor: 'pointer' }}
               >
                 <option value="admin">Admin</option>
                 <option value="member">Member</option>
@@ -1272,7 +1275,7 @@ export default function SettingsPage() {
                 type="submit"
                 disabled={inviting || !inviteEmail || teamData?.canInviteMore === false}
                 style={{
-                  ...primaryBtnStyle,
+                  ...primaryBtn,
                   padding: '10px 18px', fontSize: 14,
                   opacity: (inviting || !inviteEmail || teamData?.canInviteMore === false) ? 0.6 : 1,
                   whiteSpace: 'nowrap',
@@ -1283,14 +1286,14 @@ export default function SettingsPage() {
               </button>
             </form>
             {teamData?.canInviteMore === false && (
-              <p style={{ fontSize: 12, color: T.warning, marginTop: 10 }}>Member limit reached. Upgrade to add more.</p>
+              <p style={{ fontSize: 12, color: c.warning, marginTop: 10 }}>Member limit reached. Upgrade to add more.</p>
             )}
             {inviteMsg && (
               <div style={{
                 marginTop: 12, padding: '10px 14px', borderRadius: 8,
-                backgroundColor: inviteMsg.ok ? T.successSubtle : T.dangerSubtle,
-                border: `1px solid ${inviteMsg.ok ? T.successBorder : T.dangerBorder}`,
-                color: inviteMsg.ok ? T.success : '#f87171',
+                backgroundColor: inviteMsg.ok ? c.successSubtle : c.dangerSubtle,
+                border: `1px solid ${inviteMsg.ok ? c.successBorder : c.dangerBorder}`,
+                color: inviteMsg.ok ? c.success : c.danger,
                 fontSize: 13,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1303,11 +1306,11 @@ export default function SettingsPage() {
                       readOnly
                       value={inviteMsg.inviteUrl}
                       style={{
-                        ...inputBaseStyle,
+                        ...inputBase,
                         flex: 1,
                         fontSize: 12,
-                        fontFamily: T.mono,
-                        color: T.textSecondary,
+                        fontFamily: 'var(--font-mono)',
+                        color: c.textSecondary,
                       }}
                       onClick={e => (e.target as HTMLInputElement).select()}
                     />
@@ -1315,10 +1318,10 @@ export default function SettingsPage() {
                       type="button"
                       onClick={() => { navigator.clipboard.writeText(inviteMsg.inviteUrl!); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
                       style={{
-                        ...ghostBtnStyle,
+                        ...ghostBtn,
                         padding: '8px 14px', fontSize: 12, whiteSpace: 'nowrap',
-                        color: copied ? T.success : T.textSecondary,
-                        borderColor: copied ? T.successBorder : T.borderStrong,
+                        color: copied ? c.success : c.textSecondary,
+                        borderColor: copied ? c.successBorder : c.borderStrong,
                       }}
                     >
                       {copied ? <Check size={13} /> : <Copy size={13} />}
@@ -1332,37 +1335,37 @@ export default function SettingsPage() {
 
           {/* Active members — avatar + name + role badge rows */}
           {teamData?.members && teamData.members.length > 0 && (
-            <div style={{ ...cardStyle, padding: '20px 24px', marginBottom: 20 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: T.text, marginBottom: 16 }}>Team Members</h3>
+            <div style={{ ...card, padding: '20px 24px', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: c.text, marginBottom: 16 }}>Team Members</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {teamData.members.map((m: any) => {
                   const roleColors: Record<string, { bg: string; color: string }> = {
-                    owner: { bg: T.warningSubtle, color: T.warning },
-                    admin: { bg: T.accentSubtle, color: T.accent },
+                    owner: { bg: c.warningSubtle, color: c.warning },
+                    admin: { bg: c.accentSubtle, color: c.accent },
                     member: { bg: 'rgba(59,130,246,0.08)', color: '#3b82f6' },
-                    viewer: { bg: 'rgba(85,85,85,0.08)', color: T.textMuted },
+                    viewer: { bg: 'rgba(85,85,85,0.08)', color: c.textMuted },
                   };
                   const rc = roleColors[m.role] || roleColors.member;
                   return (
                     <div key={m.id} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '12px 14px', borderRadius: 8,
-                      backgroundColor: T.surfaceElevated, border: `1px solid ${T.border}`,
+                      backgroundColor: c.surfaceElevated, border: `1px solid ${c.border}`,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div style={{
                           width: 34, height: 34, borderRadius: '50%',
-                          backgroundColor: T.accentSubtle,
+                          backgroundColor: c.accentSubtle,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 13, fontWeight: 700, color: T.accent,
+                          fontSize: 13, fontWeight: 700, color: c.accent,
                         }}>
                           {(m.user_id || '?').substring(0, 2).toUpperCase()}
                         </div>
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 500, color: T.text }}>
+                          <div style={{ fontSize: 14, fontWeight: 500, color: c.text }}>
                             {m.user_id === workspace?.owner_id || m.user_id === workspace?.created_by ? 'You (Owner)' : 'Member'}
                           </div>
-                          <div style={{ fontSize: 11, color: T.textMuted }}>Joined {new Date(m.created_at).toLocaleDateString()}</div>
+                          <div style={{ fontSize: 11, color: c.textMuted }}>Joined {new Date(m.created_at).toLocaleDateString()}</div>
                         </div>
                       </div>
                       <span style={{
@@ -1380,14 +1383,14 @@ export default function SettingsPage() {
 
           {/* Pending invites */}
           {teamData?.invites && teamData.invites.filter((inv: any) => inv.status === 'pending').length > 0 && (
-            <div style={{ ...cardStyle, padding: '20px 24px' }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: T.text, marginBottom: 16 }}>Pending Invites</h3>
+            <div style={{ ...card, padding: '20px 24px' }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: c.text, marginBottom: 16 }}>Pending Invites</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {teamData.invites.filter((inv: any) => inv.status === 'pending').map((inv: any) => {
                   const roleColors: Record<string, { bg: string; color: string }> = {
-                    admin: { bg: T.accentSubtle, color: T.accent },
+                    admin: { bg: c.accentSubtle, color: c.accent },
                     member: { bg: 'rgba(59,130,246,0.08)', color: '#3b82f6' },
-                    viewer: { bg: 'rgba(85,85,85,0.08)', color: T.textMuted },
+                    viewer: { bg: 'rgba(85,85,85,0.08)', color: c.textMuted },
                   };
                   const rc = roleColors[inv.role] || roleColors.member;
                   const expiresAt = inv.expires_at ? new Date(inv.expires_at) : null;
@@ -1397,19 +1400,19 @@ export default function SettingsPage() {
                     <div key={inv.id || inv.email} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '12px 14px', borderRadius: 8,
-                      backgroundColor: T.surfaceElevated, border: `1px solid ${T.border}`,
+                      backgroundColor: c.surfaceElevated, border: `1px solid ${c.border}`,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div style={{
                           width: 34, height: 34, borderRadius: '50%',
-                          backgroundColor: T.accentSubtle,
+                          backgroundColor: c.accentSubtle,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 13, fontWeight: 700, color: T.accent,
+                          fontSize: 13, fontWeight: 700, color: c.accent,
                         }}>
                           {inv.email[0].toUpperCase()}
                         </div>
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 500, color: T.text }}>{inv.email}</div>
+                          <div style={{ fontSize: 14, fontWeight: 500, color: c.text }}>{inv.email}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
                             <span style={{
                               fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 6,
@@ -1418,7 +1421,7 @@ export default function SettingsPage() {
                               {inv.role || 'member'}
                             </span>
                             {daysLeft !== null && (
-                              <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: daysLeft <= 1 ? T.danger : T.textMuted }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: daysLeft <= 1 ? c.danger : c.textMuted }}>
                                 <Clock size={10} />
                                 Expires in {daysLeft} day{daysLeft !== 1 ? 's' : ''}
                               </span>
@@ -1432,7 +1435,7 @@ export default function SettingsPage() {
                             type="button"
                             onClick={() => { navigator.clipboard.writeText(invUrl); }}
                             style={{
-                              ...ghostBtnStyle,
+                              ...ghostBtn,
                               padding: '6px 12px', fontSize: 12,
                             }}
                           >
@@ -1446,7 +1449,7 @@ export default function SettingsPage() {
                           disabled={revokingId === inv.id}
                           title="Revoke invite"
                           style={{
-                            ...destructiveBtnStyle,
+                            ...destructiveBtn,
                             display: 'flex', alignItems: 'center', gap: 6,
                             padding: '6px 12px', fontSize: 12,
                             opacity: revokingId === inv.id ? 0.6 : 1,
@@ -1477,8 +1480,8 @@ export default function SettingsPage() {
 
       {/* Fallback for any unmapped tab */}
       {activeTab !== "general" && activeTab !== "integrations" && activeTab !== "team" && activeTab !== "alerts" && activeTab !== "billing" && (
-        <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: 12, border: `1px dashed ${T.border}` }}>
-          <p style={{ fontSize: 15, color: T.textMuted }}>Coming soon &mdash; {activeTab} settings</p>
+        <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: 12, border: `1px dashed ${c.border}` }}>
+          <p style={{ fontSize: 15, color: c.textMuted }}>Coming soon &mdash; {activeTab} settings</p>
         </div>
       )}
     </div>

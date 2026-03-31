@@ -1389,14 +1389,14 @@ export default function ReportsPage() {
                         style={{
                           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                           padding: '10px 14px', borderRadius: 8,
-                          border: '1px solid #333333',
+                          border: `1px solid ${c.borderStrong}`,
                           backgroundColor: 'transparent',
-                          color: '#888888', fontSize: 13, fontWeight: 600,
+                          color: c.textSecondary, fontSize: 13, fontWeight: 600,
                           cursor: (!generating && !loading && hasData) ? 'pointer' : 'not-allowed',
                           opacity: (!hasData || loading) ? 0.4 : 1,
                           transition: 'all 0.15s ease',
                         }}
-                        onMouseEnter={e => { if (!generating && hasData && !loading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1A1A1A'; }}
+                        onMouseEnter={e => { if (!generating && hasData && !loading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = c.surfaceElevated; }}
                         onMouseLeave={e => { if (!generating && hasData && !loading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'; }}
                       >
                         {generating === `${rt.id}-print` ? <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> : <FileDown size={13} />}
@@ -1412,7 +1412,7 @@ export default function ReportsPage() {
 
         {/* Right panel: Live preview skeleton */}
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#555555', textTransform: 'uppercase' as const, letterSpacing: '1px', marginBottom: 4 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: c.textMuted, textTransform: 'uppercase' as const, letterSpacing: '1px', marginBottom: 4 }}>
             Report Preview
           </div>
           <PreviewSkeleton
@@ -1427,10 +1427,10 @@ export default function ReportsPage() {
 
       <div style={{
         marginTop: 20, padding: '14px 18px', borderRadius: 8,
-        backgroundColor: '#111111', border: '1px solid #222222',
-        fontSize: 12, color: '#888888', lineHeight: 1.6,
+        backgroundColor: c.bgCard, border: `1px solid ${c.border}`,
+        fontSize: 12, color: c.textSecondary, lineHeight: 1.6,
       }}>
-        <strong style={{ color: '#FAFAFA' }}>How to send to a client:</strong> Click &quot;Generate &amp; Download&quot; to get a PDF file, or use &quot;Print&quot; to open in a new tab and save as PDF via Cmd/Ctrl+P. Use the Custom PDF Builder above to generate a React PDF with selected sections.
+        <strong style={{ color: c.text }}>How to send to a client:</strong> Click &quot;Generate &amp; Download&quot; to get a PDF file, or use &quot;Print&quot; to open in a new tab and save as PDF via Cmd/Ctrl+P. Use the Custom PDF Builder above to generate a React PDF with selected sections.
       </div>
     </PageShell>
   );
