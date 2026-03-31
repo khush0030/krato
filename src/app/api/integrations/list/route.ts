@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await supabase
       .from('integrations')
-      .select('id, provider, display_name, status, connected_at, last_sync_at')
+      .select('id, provider, display_name, status, connected_at, last_sync_at, oauth_meta')
       .eq('workspace_id', workspaceId)
       .order('created_at', { ascending: false });
 

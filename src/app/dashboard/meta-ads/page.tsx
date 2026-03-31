@@ -53,6 +53,14 @@ export default function MetaAdsPage() {
   const campaigns = adsData?.campaigns || [];
   const totals = adsData?.totals;
 
+  // Get currency from integration oauth_meta or from campaign data
+  const currencyCode = integration?.oauth_meta?.currency || adsData?.currency || 'USD';
+  const currencySymbol: Record<string, string> = {
+    INR: '₹', USD: '$', EUR: '€', GBP: '£', AUD: 'A$', CAD: 'C$', SGD: 'S$', AED: 'AED ', JPY: '¥',
+  };
+  const sym = currencySymbol[currencyCode?.toUpperCase()] || currencyCode + ' ';
+  const fmtMoney = (v: number) => `${sym}${v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
   async function handleSync() {
     if (!integration || !workspace) return;
     setSyncing(true);
@@ -138,7 +146,7 @@ export default function MetaAdsPage() {
     >
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
-        <StatCard icon={DollarSign} color={c.accent} label="Total Spend" value={`$${totalSpend.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} sub="Last 30 days" />
+        <StatCard icon={DollarSign} color={c.accent} label="Total Spend" value={fmtMoney(totalSpend)} sub="Last 30 days" />
         <StatCard icon={TrendingUp} color="#F59E0B" label="ROAS" value={totalRoas > 0 ? `${totalRoas.toFixed(2)}x` : '--'} sub={totalRoas >= 3 ? 'Healthy' : totalRoas >= 1 ? 'Breakeven' : 'Needs improvement'} />
         <StatCard icon={MousePointer} color="#10B981" label="Total Clicks" value={totalClicks.toLocaleString()} sub={`${totalReach.toLocaleString()} reach`} />
         <StatCard icon={Eye} color={c.textSecondary} label="Impressions" value={totalImpressions.toLocaleString()} sub="All campaigns" />
@@ -171,11 +179,11 @@ export default function MetaAdsPage() {
                     <div style={{ fontWeight: 500, color: c.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 13 }}>{campaign.campaign_name}</div>
                   </td>
                   <td style={{ padding: '12px 16px' }}>{campaign.status ? <StatusBadge status={campaign.status} /> : '--'}</td>
-                  <td style={{ padding: '12px 16px', fontWeight: 500, color: c.text, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.spend === 'string' ? campaign.spend : `$${(campaign.spend || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</td>
+                  <td style={{ padding: '12px 16px', fontWeight: 500, color: c.text, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.spend === 'string' ? campaign.spend : fmtMoney(campaign.spend || 0)}</td>
                   <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.clicks === 'string' ? campaign.clicks : (campaign.clicks || 0).toLocaleString()}</td>
                   <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.impressions === 'string' ? campaign.impressions : (campaign.impressions || 0).toLocaleString()}</td>
                   <td style={{ padding: '12px 16px', color: c.textMuted, fontWeight: 500, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.ctr === 'string' ? campaign.ctr : campaign.ctr > 0 ? `${campaign.ctr.toFixed(2)}%` : '--'}</td>
-                  <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.cpc === 'string' ? campaign.cpc : campaign.cpc > 0 ? `$${campaign.cpc.toFixed(2)}` : '--'}</td>
+                  <td style={{ padding: '12px 16px', color: c.textSecondary, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.cpc === 'string' ? campaign.cpc : campaign.cpc > 0 ? `${sym}${campaign.cpc.toFixed(2)}` : '--'}</td>
                   <td style={{ padding: '12px 16px', color: c.textMuted, fontWeight: 600, fontSize: 13, fontFamily: 'var(--font-mono)' }}>{typeof campaign.roas === 'string' ? campaign.roas : campaign.roas > 0 ? `${campaign.roas.toFixed(2)}x` : '--'}</td>
                 </tr>
               ))}
