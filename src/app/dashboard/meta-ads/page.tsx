@@ -351,8 +351,9 @@ export default function MetaAdsPage() {
     </PageShell>
   );
 
-  /* No data */
-  if (allCampaigns.length === 0) return (
+  /* No data at all — never synced */
+  const hasAnyData = allCampaigns.length > 0 || adsData?.source === 'analytics_data';
+  if (!hasAnyData && allCampaigns.length === 0) return (
     <PageShell
       title="Meta Ads"
       description="Facebook & Instagram ad performance"
@@ -415,6 +416,14 @@ export default function MetaAdsPage() {
           Last {days} days
         </span>
       </div>
+
+      {/* No data for selected range */}
+      {allCampaigns.length === 0 && hasAnyData && (
+        <div style={{ textAlign: 'center', padding: '40px 20px', borderRadius: 12, border: `1px dashed ${c.border}`, marginBottom: 24, backgroundColor: c.bgCard }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: c.text, marginBottom: 4 }}>No data for the last {days} days</p>
+          <p style={{ fontSize: 13, color: c.textMuted }}>Try a longer date range or sync to pull the latest data.</p>
+        </div>
+      )}
 
       {/* KPI Cards - 6 cards in 3x2 grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 24 }}>
